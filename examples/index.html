@@ -8,7 +8,9 @@
 	var compiler = new ajtalk.Compiler();
 	var block = compiler.compileBlock(text);
 	var result = block.apply();
-	document.getElementById("outputField").value = result;
+	if (result == null)
+		return;
+	document.getElementById("outputField").innerHTML += result + "\r\n";
  }
  
  </script>
