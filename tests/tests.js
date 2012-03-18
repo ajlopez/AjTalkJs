@@ -49,6 +49,8 @@ obj.sendMessage("basicAt:put:", [0, 1]);
 assert.equal(1, obj.variables[0]);
 assert.equal(1, obj.sendMessage("basicAt:", [0]));
 
+// Define method seta a := 10.
+
 var method = new ajtalk.Block(0, 0);
 method.values.push(10);
 method.bytecodes = [ ajtalk.ByteCodes.GetValue, 0, ajtalk.ByteCodes.SetInstanceVariable, 0 ];
@@ -59,6 +61,8 @@ obj.sendMessage("seta", null);
 
 assert.equal(10, obj.variables[0]);
 
+// Define method a: aValue a := aValue.
+
 method = new ajtalk.Block(1, 0);
 method.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, ajtalk.ByteCodes.SetInstanceVariable, 0 ];
 
@@ -67,11 +71,15 @@ obj.sendMessage("a:", [20]);
 
 assert.equal(20, obj.variables[0]);
 
+// Get Value, Return in block
+
 var block = new ajtalk.Block(0, 0);
 block.values.push(3);
 block.bytecodes = [ ajtalk.ByteCodes.GetValue, 0, ajtalk.ByteCodes.Return ];
 
 assert.equal(3, block.apply(null, null));
+
+// Arithmethic bycodes
 
 block = new ajtalk.Block(2, 0);
 block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, 
@@ -104,4 +112,77 @@ block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0,
 			ajtalk.ByteCodes.Return ];
 			
 assert.equal(3/2, block.apply(null, [3, 2]));
-						
+
+// Lexer
+
+// Parse a name
+
+var lexer = new ajtalk.Lexer("name");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse two names
+
+lexer = new ajtalk.Lexer("self class");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("self", token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("class", token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse an integer number
+
+lexer = new ajtalk.Lexer("123");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isNumber());
+assert.equal(123, token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse a string
+
+lexer = new ajtalk.Lexer("'foo'");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isString());
+assert.equal('foo', token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse add operator
+
+lexer = new ajtalk.Lexer('+');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('+', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse return operator
+
+lexer = new ajtalk.Lexer('^');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('^', token.value);
+assert.equal(null, lexer.nextToken());
+
+
+
