@@ -138,6 +138,23 @@ assert.ok(token.isName());
 assert.equal("name", token.value);
 assert.equal(null, lexer.nextToken());
 
+// Skip comment
+
+lexer = new ajtalk.Lexer('"a comment"');
+token = lexer.nextToken();
+assert.equal(null, token);
+
+// Parse a name with comments
+
+lexer = new ajtalk.Lexer('"first comment" name "second comment"');
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+assert.equal(null, lexer.nextToken());
+
 // Parse two names
 
 lexer = new ajtalk.Lexer("self class");
