@@ -158,6 +158,24 @@ assert.ok(token.isName());
 assert.equal("name", token.value);
 assert.equal(null, lexer.nextToken());
 
+// Parse a name and dot
+
+var lexer = new ajtalk.Lexer("name.");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSeparator());
+assert.equal(".", token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Skip comment
 
 lexer = new ajtalk.Lexer('"a comment"');
@@ -202,6 +220,24 @@ token = lexer.nextToken();
 assert.notEqual(null, token);
 assert.ok(token.isNumber());
 assert.equal(123, token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse an integer number and dot
+
+lexer = new ajtalk.Lexer("123. ");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isNumber());
+assert.equal(123, token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSeparator());
+assert.equal('.', token.value);
 
 assert.equal(null, lexer.nextToken());
 
@@ -375,4 +411,23 @@ block = compiler.compileBlock("1 + 3");
 assert.notEqual(null, block);
 assert.equal(2, block.values.length);
 assert.equal(4, block.apply());
+
+// Compile And Execute binary message ending in point
+
+block = compiler.compileBlock("1 + 3.");
+
+assert.notEqual(null, block);
+assert.equal(2, block.values.length);
+assert.equal(4, block.apply());
+
+// Compile And Execute two assignments
+
+block = compiler.compileBlock("one := 1. two := 2");
+
+assert.notEqual(null, block);
+block.apply();
+
+assert.equal(1, ajtalk.Smalltalk.one);
+assert.equal(2, ajtalk.Smalltalk.two);
+
 
