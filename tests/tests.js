@@ -73,3 +73,35 @@ block.bytecodes = [ ajtalk.ByteCodes.GetValue, 0, ajtalk.ByteCodes.Return ];
 
 assert.equal(3, block.apply(null, null));
 
+block = new ajtalk.Block(2, 0);
+block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, 
+			ajtalk.ByteCodes.GetArgument, 1, 
+			ajtalk.ByteCodes.Add, 
+			ajtalk.ByteCodes.Return ];
+			
+assert.equal(3, block.apply(null, [1, 2]));
+
+block = new ajtalk.Block(2, 0);
+block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, 
+			ajtalk.ByteCodes.GetArgument, 1, 
+			ajtalk.ByteCodes.Subtract, 
+			ajtalk.ByteCodes.Return ];
+			
+assert.equal(-1, block.apply(null, [1, 2]));
+
+block = new ajtalk.Block(2, 0);
+block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, 
+			ajtalk.ByteCodes.GetArgument, 1, 
+			ajtalk.ByteCodes.Multiply, 
+			ajtalk.ByteCodes.Return ];
+			
+assert.equal(6, block.apply(null, [3, 2]));
+
+block = new ajtalk.Block(2, 0);
+block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0, 
+			ajtalk.ByteCodes.GetArgument, 1, 
+			ajtalk.ByteCodes.Divide, 
+			ajtalk.ByteCodes.Return ];
+			
+assert.equal(3/2, block.apply(null, [3, 2]));
+						
