@@ -79,6 +79,18 @@ block.bytecodes = [ ajtalk.ByteCodes.GetValue, 0, ajtalk.ByteCodes.Return ];
 
 assert.equal(3, block.apply(null, null));
 
+// Add values to block
+
+block = new ajtalk.Block(0, 0);
+assert.equal(0, block.addValue(1));
+assert.equal(1, block.addValue("a"));
+assert.equal(2, block.addValue(null));
+assert.equal(1, block.addValue("a"));
+assert.equal(3, block.values.length);
+assert.equal(1, block.values[0]);
+assert.equal("a", block.values[1]);
+assert.equal(null, block.values[2]);
+
 // Arithmethic bycodes
 
 block = new ajtalk.Block(2, 0);
@@ -184,5 +196,18 @@ assert.ok(token.isOperator());
 assert.equal('^', token.value);
 assert.equal(null, lexer.nextToken());
 
+// Compiler
 
+// Compile simple block
+
+var compiler = new ajtalk.Compiler();
+
+block = compiler.compileBlock('a');
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.GetGlobalVariable, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal(1, block.values.length);
+assert.equal("a", block.values[0]);
 
