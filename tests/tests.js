@@ -125,6 +125,26 @@ block.bytecodes = [ ajtalk.ByteCodes.GetArgument, 0,
 			
 assert.equal(3/2, block.apply(null, [3, 2]));
 
+// Set Global Variable
+
+block = new ajtalk.Block(0, 0);
+block.addValue('foo');
+block.addValue('Bar');
+block.bytecodes = [ ajtalk.ByteCodes.GetValue, 0, ajtalk.ByteCodes.SetGlobalVariable, 1 ];
+
+block.apply();
+
+assert.equal('foo', ajtalk.Smalltalk.Bar);
+
+// Get Global Variable
+
+block = new ajtalk.Block(0, 0);
+block.addValue('Bar');
+block.bytecodes = [ ajtalk.ByteCodes.GetGlobalVariable, 0, ajtalk.ByteCodes.Return ];
+
+assert.equal('foo', ajtalk.Smalltalk.Bar);
+assert.equal('foo', block.apply());
+
 // Lexer
 
 // Parse a name
@@ -197,6 +217,18 @@ assert.equal('foo', token.value);
 
 assert.equal(null, lexer.nextToken());
 
+// Parse a keyword
+
+lexer = new ajtalk.Lexer("at:");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.equal('at:', token.value);
+assert.ok(token.isKeyword());
+
+assert.equal(null, lexer.nextToken());
+
 // Parse add operator
 
 lexer = new ajtalk.Lexer('+');
@@ -211,6 +243,14 @@ lexer = new ajtalk.Lexer('^');
 token = lexer.nextToken();
 assert.ok(token.isOperator());
 assert.equal('^', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse assignment operator
+
+lexer = new ajtalk.Lexer(':=');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal(':=', token.value);
 assert.equal(null, lexer.nextToken());
 
 // Compiler
