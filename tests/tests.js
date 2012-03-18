@@ -253,6 +253,24 @@ assert.ok(token.isOperator());
 assert.equal(':=', token.value);
 assert.equal(null, lexer.nextToken());
 
+// Parse assignment
+
+lexer = new ajtalk.Lexer('a := 3');
+
+token = lexer.nextToken();
+assert.ok(token.isName());
+assert.equal('a', token.value);
+
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal(':=', token.value);
+
+token = lexer.nextToken();
+assert.ok(token.isNumber());
+assert.equal(3, token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Compiler
 
 // Compile simple block
@@ -268,3 +286,43 @@ assert.equal(0, block.bytecodes[1]);
 assert.equal(1, block.values.length);
 assert.equal("a", block.values[0]);
 
+// Compile number
+
+block = compiler.compileBlock('123');
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.GetValue, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal(1, block.values.length);
+assert.equal(123, block.values[0]);
+
+// Compile string
+
+block = compiler.compileBlock("'foo'");
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.GetValue, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal(1, block.values.length);
+assert.equal('foo', block.values[0]);
+
+
+// Compile and Execute assignment
+
+block = compiler.compileBlock("a := 3");
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.GetValue, block.bytecodes[0]);
+assert.equal(1, block.bytecodes[1]);
+assert.equal(2, block.values.length);
+assert.equal(3, block.values[1]);
+assert.equal(ajtalk.ByteCodes.SetGlobalVariable, block.bytecodes[2]);
+assert.equal(0, block.bytecodes[3]);
+assert.equal("a", block.values[0]);
+
+block.apply();
+
+assert.equal(3, ajtalk.Smalltalk.a);
