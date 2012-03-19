@@ -2,7 +2,7 @@
 var assert = require('assert');
 var ajtalk = require('../lib/ajtalk.js');
 
-var cls = new ajtalk.BaseClass('SampleObject', ['a', 'b', 'c']);
+var cls = new ajtalk.BaseClass('SampleObject', ['a', 'b', 'c'], null, ajtalk.Smalltalk.Object);
 var obj = new ajtalk.BaseObject(cls);
 
 assert.notEqual(null, obj);
@@ -504,5 +504,45 @@ assert.equal("aValue", method.argnames[0]);
 assert.equal(0, method.localnames.length);
 assert.equal(4, method.bytecodes.length);
 
+// Compile Object method
 
+var objcls = ajtalk.Smalltalk.Object;
+
+assert.notEqual(null, objcls);
+assert.notEqual(null, objcls.methods['compileMethod:']);
+objcls.sendMessage("compileMethod:", ["zero ^0."]);
+
+assert.equal(0, obj.sendMessage("zero"));
+
+// Compile and Execute get a method
+
+cls.sendMessage("compileMethod:", ["a ^a"]);
+method = obj.lookup("a");
+obj.variables[0] = 10;
+
+assert.notEqual(null, method);
+assert.equal("a", method.name);
+assert.equal(3, method.bytecodes.length);
+assert.equal(ajtalk.ByteCodes.GetInstanceVariable, method.bytecodes[0]);
+
+assert.equal(10, obj.sendMessage("a"));
+
+// Compile and Execute set a method
+
+cls.sendMessage("compileMethod:", ["a: aValue a := aValue"]);
+method = obj.lookup("a:");
+assert.equal(1, method.argnames.length);
+assert.equal("aValue", method.argnames[0]);
+assert.equal(ajtalk.ByteCodes.GetArgument, method.bytecodes[0]);
+assert.equal(0, method.bytecodes[1]);
+obj.sendMessage("a:", [50]);
+assert.equal(obj.variables[0], obj.sendMessage("a"));
+assert.equal(50, obj.variables[0]);
+
+// New Object
+
+var newobj = cls.sendMessage("new");
+assert.notEqual(null, newobj);
+//assert.ok(newobj instanceof ajtalk.BasicObject);
+assert.equal(0, newobj.sendMessage("zero"));
 
