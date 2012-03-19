@@ -430,4 +430,58 @@ block.apply();
 assert.equal(1, ajtalk.Smalltalk.one);
 assert.equal(2, ajtalk.Smalltalk.two);
 
+// Compile unary method signature
+
+lexer = new ajtalk.Lexer("width");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("width", signature.name);
+assert.equal(0, signature.argnames.length);
+assert.equal(0, signature.localnames.length);
+
+// Compile binary method signature
+
+lexer = new ajtalk.Lexer("+ aNumber");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("+", signature.name);
+assert.equal(1, signature.argnames.length);
+assert.equal("aNumber", signature.argnames[0]);
+assert.equal(0, signature.localnames.length);
+
+
+// Compile keyword method signature
+
+lexer = new ajtalk.Lexer("at: aName put: aValue");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("at:put:", signature.name);
+assert.equal(2, signature.argnames.length);
+assert.equal("aName", signature.argnames[0]);
+assert.equal("aValue", signature.argnames[1]);
+assert.equal(0, signature.localnames.length);
+
+// Compile get method
+
+method = compiler.compileMethod("a ^a.", cls);
+
+assert.equal("a", method.name);
+assert.equal(0, method.argnames.length);
+assert.equal(0, method.localnames.length);
+assert.equal(3, method.bytecodes.length);
+
+// Compile set method
+
+method = compiler.compileMethod("a: aValue a := aValue.", cls);
+
+assert.equal("a:", method.name);
+assert.equal(1, method.argnames.length);
+assert.equal("aValue", method.argnames[0]);
+assert.equal(0, method.localnames.length);
+assert.equal(4, method.bytecodes.length);
+
+
 
