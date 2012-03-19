@@ -430,6 +430,29 @@ block.apply();
 assert.equal(1, ajtalk.Smalltalk.one);
 assert.equal(2, ajtalk.Smalltalk.two);
 
+// Compile and Execute Object new
+
+block = compiler.compileBlock("Object new");
+
+assert.notEqual(null, block);
+assert.equal(6, block.bytecodes.length);
+assert.equal(ajtalk.ByteCodes.GetGlobalVariable, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal("Object", block.values[0]);
+assert.equal(ajtalk.ByteCodes.GetValue, block.bytecodes[2]);
+assert.equal(1, block.bytecodes[3]);
+assert.equal("new", block.values[1]);
+assert.equal(ajtalk.ByteCodes.SendMessage, block.bytecodes[4]);
+assert.equal(0, block.bytecodes[5]);
+
+// Compile Object compileMethod:
+
+block = compiler.compileBlock("Object compileMethod: 'zero ^0'.");
+
+assert.notEqual(null, block);
+
+//assert.notEqual(null, block.apply());
+
 // Compile unary method signature
 
 lexer = new ajtalk.Lexer("width");
@@ -529,7 +552,8 @@ assert.equal(10, obj.sendMessage("a"));
 
 // Compile and Execute set a method
 
-cls.sendMessage("compileMethod:", ["a: aValue a := aValue"]);
+var result = cls.sendMessage("compileMethod:", ["a: aValue a := aValue"]);
+assert.notEqual(null, result);
 method = obj.lookup("a:");
 assert.equal(1, method.argnames.length);
 assert.equal("aValue", method.argnames[0]);
@@ -543,6 +567,6 @@ assert.equal(50, obj.variables[0]);
 
 var newobj = cls.sendMessage("new");
 assert.notEqual(null, newobj);
-//assert.ok(newobj instanceof ajtalk.BasicObject);
+assert.ok(newobj instanceof ajtalk.BaseObject);
 assert.equal(0, newobj.sendMessage("zero"));
 
