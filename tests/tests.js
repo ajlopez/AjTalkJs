@@ -440,6 +440,16 @@ assert.equal("width", signature.name);
 assert.equal(0, signature.argnames.length);
 assert.equal(0, signature.localnames.length);
 
+// Compile unary method signature ignoring body
+
+lexer = new ajtalk.Lexer("width ^width");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("width", signature.name);
+assert.equal(0, signature.argnames.length);
+assert.equal(0, signature.localnames.length);
+
 // Compile binary method signature
 
 lexer = new ajtalk.Lexer("+ aNumber");
@@ -451,10 +461,21 @@ assert.equal(1, signature.argnames.length);
 assert.equal("aNumber", signature.argnames[0]);
 assert.equal(0, signature.localnames.length);
 
-
 // Compile keyword method signature
 
 lexer = new ajtalk.Lexer("at: aName put: aValue");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("at:put:", signature.name);
+assert.equal(2, signature.argnames.length);
+assert.equal("aName", signature.argnames[0]);
+assert.equal("aValue", signature.argnames[1]);
+assert.equal(0, signature.localnames.length);
+
+// Compile keyword method signature, ignoring body
+
+lexer = new ajtalk.Lexer("at: aName put: aValue variables at: aName put: aValue.");
 var signature = compiler.compileMethodSignature(lexer);
 
 assert.notEqual(null, signature);
