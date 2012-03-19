@@ -570,3 +570,15 @@ assert.notEqual(null, newobj);
 assert.ok(newobj instanceof ajtalk.BaseObject);
 assert.equal(0, newobj.sendMessage("zero"));
 
+// Experimental
+
+var expcls = new ajtalk.ProtoClass();
+var expobj = expcls.basicNew();
+var expsubcls = expcls.defineSubclass('SubClass');
+var expsubobj = expsubcls.basicNew();
+
+expcls.defineMethod('zero', function() { return 0; });
+
+assert.equal(0, expobj.zero());
+assert.equal(0, expsubobj.zero());
+
