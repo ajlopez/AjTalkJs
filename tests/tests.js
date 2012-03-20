@@ -591,5 +591,11 @@ assert.equal(0, expobj.zero2());
 block = compiler.compileMethod("add: x to: y ^x+y", expcls);
 expcls.defineMethod(block.name, block);
 
-assert.equal(3, expobj["add:to:"](1,2));
+assert.equal(3, expobj.add_to_(1,2));
+
+var exppointcls = expcls.defineSubclass('Point', ['x', 'y']);
+
+assert.equal(2, exppointcls.getObjectSize());
+assert.ok(exppointcls.func.prototype.hasOwnProperty('$x'));
+assert.ok(exppointcls.func.prototype.hasOwnProperty('$y'));
 
