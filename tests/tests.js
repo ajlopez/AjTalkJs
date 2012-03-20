@@ -588,3 +588,8 @@ expcls.defineMethod('zero2', block);
 assert.ok(typeof expobj.zero2 == "function");
 assert.equal(0, expobj.zero2());
 
+block = compiler.compileMethod("add: x to: y ^x+y", expcls);
+expcls.defineMethod(block.name, block);
+
+assert.equal(3, expobj["add:to:"](1,2));
+
