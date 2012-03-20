@@ -582,3 +582,9 @@ expcls.defineMethod('zero', function() { return 0; });
 assert.equal(0, expobj.zero());
 assert.equal(0, expsubobj.zero());
 
+block = compiler.compileMethod("zero ^0", expcls);
+expcls.defineMethod('zero2', block);
+
+assert.ok(typeof expobj.zero2 == "function");
+assert.equal(0, expobj.zero2());
+
