@@ -570,32 +570,3 @@ assert.notEqual(null, newobj);
 assert.ok(newobj instanceof ajtalk.BaseObject);
 assert.equal(0, newobj.sendMessage("zero"));
 
-// Experimental
-
-var expcls = new ajtalk.ProtoClass();
-var expobj = expcls.basicNew();
-var expsubcls = expcls.defineSubclass('SubClass');
-var expsubobj = expsubcls.basicNew();
-
-expcls.defineMethod('zero', function() { return 0; });
-
-assert.equal(0, expobj.zero());
-assert.equal(0, expsubobj.zero());
-
-block = compiler.compileMethod("zero ^0", expcls);
-expcls.defineMethod('zero2', block);
-
-assert.ok(typeof expobj.zero2 == "function");
-assert.equal(0, expobj.zero2());
-
-block = compiler.compileMethod("add: x to: y ^x+y", expcls);
-expcls.defineMethod(block.name, block);
-
-assert.equal(3, expobj.add_to_(1,2));
-
-var exppointcls = expcls.defineSubclass('Point', ['x', 'y']);
-
-assert.equal(2, exppointcls.getObjectSize());
-assert.ok(exppointcls.func.prototype.hasOwnProperty('$x'));
-assert.ok(exppointcls.func.prototype.hasOwnProperty('$y'));
-
