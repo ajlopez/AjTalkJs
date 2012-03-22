@@ -68,3 +68,13 @@ Smalltalk.Point.compileMethod_("x ^x");
 assert.ok(Smalltalk.Point.func.prototype.x);
 assert.equal(10, point.x());
 
+var compiler = new ajtalk.Compiler();
+var block = compiler.compileBlock("Object compileMethod: 'one ^1'");
+var result = block.apply();
+
+assert.ok(Smalltalk.Object.func.prototype.one);
+assert.ok(typeof Smalltalk.Object.func.prototype.one == "function");
+
+assert.equal(1, obj.one());
+
+
