@@ -15,13 +15,18 @@ var obj2 = Smalltalk.Object.new();
 
 assert.equal(obj2.klass, Smalltalk.Object);
 
-var pointclass = Smalltalk.Object.defineSubclass('Point');
+var pointclass = Smalltalk.Object.defineSubclass('Point', ['x', 'y']);
 
 assert.ok(pointclass);
 assert.ok(Smalltalk.Point);
 assert.equal(pointclass, Smalltalk.Point);
 assert.ok(Smalltalk.Point.super);
 assert.equal(Smalltalk.Point.super, Smalltalk.Object);
+
+assert.ok(pointclass.instvarnames);
+assert.equal(2, pointclass.instvarnames.length);
+assert.equal('x', pointclass.instvarnames[0]);
+assert.equal('y', pointclass.instvarnames[1]);
 
 var point = pointclass.basicNew();
 
@@ -51,4 +56,14 @@ assert.equal(3, obj.sendMessage("add_to_", [1, 2]));
 assert.equal(5, point.sendMessage("add_to_", [3, 2]));
 
 Smalltalk.Object.compileMethod_("add1: x ^ x + 1.");
+assert.equal(3, obj.add1_(2));
 
+Smalltalk.Point.compileMethod_("x: aValue x := aValue.");
+assert.ok(Smalltalk.Point.func.prototype.x_);
+
+point.sendMessage("x_", [10]);
+assert.equal(10, point.$x);
+
+Smalltalk.Point.compileMethod_("x ^x");
+assert.ok(Smalltalk.Point.func.prototype.x);
+assert.equal(10, point.x());
