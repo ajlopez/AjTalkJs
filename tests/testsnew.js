@@ -67,3 +67,4 @@ assert.equal(10, point.$x);
 Smalltalk.Point.compileMethod_("x ^x");
 assert.ok(Smalltalk.Point.func.prototype.x);
 assert.equal(10, point.x());
+
