@@ -18,6 +18,16 @@ assert.ok(Smalltalk.Object.klass.func);
 assert.ok(obj.class());
 assert.equal(Smalltalk.Object, obj.class());
 
+// name method in class
+
+assert.ok(Smalltalk.Object.proto);
+assert.ok(Smalltalk.Object.proto.name);
+assert.equal('Object', Smalltalk.Object.name());
+
+// name method in metaclass
+
+assert.equal('Object class', Smalltalk.Object.class().name());
+
 // class method in class
 
 assert.ok(obj.class().class());
