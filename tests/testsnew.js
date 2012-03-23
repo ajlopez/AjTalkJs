@@ -9,6 +9,18 @@ var Smalltalk = ajtalk.Smalltalk;
 var obj = Smalltalk.Object.basicNew();
 
 assert.equal(obj.klass, Smalltalk.Object);
+assert.ok(Smalltalk.Object.func);
+assert.ok(Smalltalk.Object.klass);
+assert.ok(Smalltalk.Object.klass.func);
+
+// class method
+
+assert.ok(obj.class());
+assert.equal(Smalltalk.Object, obj.class());
+
+// class method in class
+
+assert.ok(obj.class().class());
 
 // compiled new
 var obj2 = Smalltalk.Object.new();
