@@ -15,6 +15,23 @@ assert.equal(800, p.nget_('$age'));
 assert.equal('Adam', p.nput_at_('$name', 'Adam'));
 assert.equal('Adam', p.nget_('$name'));
 
+var v = [1,2,3];
+
+assert.equal(3, v.nget_('length'));
+assert.equal(2, v.nget_(1));
+v.napply_with_('push', [4]);
+assert.equal(4, v.nget_('length'));
+assert.equal(4, v.nget_(3));
+
+var q = Object.nnew();
+
+assert.notEqual(null, q);
+
+var v2 = Array.nnew_([7]);
+
+assert.equal(7, v2.length);
+assert.ok(v2 instanceof Array);
+
 // native basicNew
 var obj = Smalltalk.Object.basicNew();
 
