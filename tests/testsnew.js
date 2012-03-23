@@ -39,6 +39,9 @@ assert.ok(v2 instanceof Array);
 var n = Number.nnew_([4]);
 assert.equal('4', n.sendMessage('toString'));
 
+assert.ok(Smalltalk.nget_('Global'));
+assert.ok(Smalltalk.nget_('Global').nget_('Number'));
+
 // basicNew
 
 var obj = Smalltalk.Object.basicNew();
