@@ -23,6 +23,9 @@ v.napply_with_('push', [4]);
 assert.equal(4, v.nget_('length'));
 assert.equal(4, v.nget_(3));
 
+assert.equal(4, v.napply_('pop'));
+assert.equal(3, v.length);
+
 var q = Object.nnew();
 
 assert.notEqual(null, q);
@@ -30,9 +33,14 @@ assert.notEqual(null, q);
 var v2 = Array.nnew_([7]);
 
 assert.equal(7, v2.length);
+assert.equal(7, v2.nget_('length'));
 assert.ok(v2 instanceof Array);
 
-// native basicNew
+var n = Number.nnew_([4]);
+assert.equal('4', n.sendMessage('toString'));
+
+// basicNew
+
 var obj = Smalltalk.Object.basicNew();
 
 assert.equal(obj.klass, Smalltalk.Object);
@@ -126,4 +134,8 @@ assert.ok(typeof Smalltalk.Object.func.prototype.one == "function");
 
 assert.equal(1, obj.one());
 
+block = compiler.compileBlock("Object nget: '$name'");
+result = block.apply();
+
+assert.equal('Object', result);
 
