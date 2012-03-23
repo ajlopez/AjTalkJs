@@ -5,6 +5,16 @@ var Smalltalk = ajtalk.Smalltalk;
 
 // New Experimental Implementation tests
 
+// Objects methods
+
+var p = {};
+
+p.$age = 800;
+
+assert.equal(800, p.nget_('$age'));
+assert.equal('Adam', p.nput_at_('$name', 'Adam'));
+assert.equal('Adam', p.nget_('$name'));
+
 // native basicNew
 var obj = Smalltalk.Object.basicNew();
 
