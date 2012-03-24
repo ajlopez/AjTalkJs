@@ -142,3 +142,18 @@ result = block.apply();
 
 assert.equal('Object', result);
 
+// Compiler
+
+block = compiler.compileBlock("{ 1. 2. 3+5. Global }");
+result = block.apply();
+
+assert.ok(result);
+assert.equal(4, result.length);
+assert.equal(1, result[0]);
+assert.equal(2, result[1]);
+assert.equal(8, result[2]);
+assert.equal(Smalltalk.Global, result[3]);
+
+
+
+
