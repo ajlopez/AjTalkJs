@@ -13,7 +13,17 @@
 	document.getElementById("outputField").innerHTML += result + "\r\n";
  }
  
+ function showExample(name)
+ {
+	var example = document.getElementById(name).innerHTML;
+	document.getElementById("inputField").innerHTML = example;
+ }
  </script>
+ <style>
+ .example {
+	display: none;
+ }
+ </style>
 </head>
 <body>
 <h1>AjTalkJs</h1>
@@ -31,5 +41,21 @@
 </td>
 </tr>
 </table>
+
+<h2>Examples</h2>
+<ul>
+	<li>
+		<a href='#' onclick='showExample("domhello")'>DOM Hello World</a>
+	</li>
+</ul>
+
+<div id='domhello' class='example'>
+document := (Global nat: 'document').
+body := document nat: 'body'.
+newDiv := document napply: 'createElement' with: { 'div' }.
+newContent := document napply: 'createTextNode' with: { 'Hello, world' }.
+newDiv napply: 'appendChild' with: { newContent }.
+body napply: 'appendChild' with: { newDiv }.
+</div>
 </body>
 </html>
