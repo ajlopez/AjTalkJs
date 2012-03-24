@@ -42,6 +42,11 @@ assert.equal('4', n.sendMessage('toString'));
 assert.ok(Smalltalk.nat_('Global'));
 assert.ok(Smalltalk.nat_('Global').nat_('Number'));
 
+// Object
+
+assert.equal(null, Smalltalk.Object.instvarnames);
+assert.equal(null, Smalltalk.Object.clsvarnames);
+
 // basicNew
 
 var obj = Smalltalk.Object.basicNew();
@@ -141,6 +146,18 @@ block = compiler.compileBlock("Object nat: '$name'");
 result = block.apply();
 
 assert.equal('Object', result);
+
+// Subclass
+
+block = compiler.compileBlock("Object subclass: 'Point' instanceVariableNames: 'x y' classVariableNames: ''");
+result = block.apply();
+
+assert.ok(Smalltalk.Point);
+assert.ok(Smalltalk.Point.instvarnames);
+assert.equal(null, Smalltalk.Point.clsvarnames);
+assert.equal(2, Smalltalk.Point.instvarnames.length);
+assert.equal('x', Smalltalk.Point.instvarnames[0]);
+assert.equal('y', Smalltalk.Point.instvarnames[1]);
 
 // Compiler
 
