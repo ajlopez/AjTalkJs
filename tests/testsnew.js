@@ -159,6 +159,19 @@ assert.equal(2, Smalltalk.Point.instvarnames.length);
 assert.equal('x', Smalltalk.Point.instvarnames[0]);
 assert.equal('y', Smalltalk.Point.instvarnames[1]);
 
+// Compile methods
+
+block = compiler.compileBlock("Point compileMethod: 'x: aValue x := aValue'");
+block.apply();
+
+block = compiler.compileBlock("Point compileMethod: 'x ^x");
+block.apply();
+
+block = compiler.compileBlock("Point new");
+var point = block.apply();
+point.x_(10);
+assert.ok(10, point.x());
+
 // Compiler
 
 block = compiler.compileBlock("{ 1. 2. 3+5. Global }");

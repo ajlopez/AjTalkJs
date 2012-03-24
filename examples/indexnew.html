@@ -48,6 +48,9 @@
 		<a href='#' onclick='showExample("compilesimplemethod")'>Compile Simple Method</a>
 	</li>
 	<li>
+		<a href='#' onclick='showExample("simplesubclass")'>Simple Subclass with Methods</a>
+	</li>
+	<li>
 		<a href='#' onclick='showExample("domhello")'>DOM Hello World</a>
 	</li>
 </ul>
@@ -55,6 +58,16 @@
 <div id='compilesimplemethod' class='example'>
 Object compileMethod: 'zero ^0'.
 Object new zero
+</div>
+<div id='simplesubclass' class='example'>
+Object subclass: 'Point' instanceVariableNames: 'x y' classVariableNames: ''.
+Point compileMethod: 'x ^x.'.
+Point compileMethod: 'x: aValue x := aValue'.
+Point compileMethod: 'y ^y.'.
+Point compileMethod: 'y: aValue y := aValue'.
+p := Point new.
+p x: 10.
+p x
 </div>
 <div id='domhello' class='example'>
 document := (Global nat: 'document').
