@@ -1,54 +1,78 @@
 
-// New Experimental Implementation
-
-(function(exports, top) {
-
-    // Object new methods
-    
-    Object.prototype.sendMessage = function(selector, args)
-    {
-        return this[selector].apply(this, args);
-    }
-    
-    Object.prototype.nat_ = function(name)
-    {
-        return this[name];
-    }
-    
-    Object.prototype.nat_put_ = function(name, value)
-    {
-        this[name] = value;
-        return value;
-    }
-    
-    Object.prototype.napply_ = function(name)
-    {
-        return this[name].apply(this);
-    }
-    
-    Object.prototype.napply_with_ = function(name, args)
-    {
-        return this[name].apply(this, args);
-    }
-    
-    // Function new methods
-    
-    Function.prototype.nnew = function()
-    {
-        return new this;
-    }
-    
-    Function.prototype.nnew_ = function(args)
-    {
-        return this.prototype.constructor.apply(this, args);
-    }
-    
-    // Smalltalk variable
-
+(function(exports) {
 	var Smalltalk = {};
-    
-    Smalltalk.Global = top;
     	
+	function BaseObject(klass) {
+		this.klass = klass;
+		this.size = klass ? klass.getInstanceSize() : 0;
+		this.variables = new Array(this.size);
+	};
+	
+	BaseObject.prototype.lookup = function(selector)
+	{
+		return this.klass.lookupInstanceMethod(selector);
+	};
+	
+	BaseObject.prototype.sendMessage = function(selector, args)
+	{
+		var method = this.lookup(selector);
+		return method.apply(this, args);
+	};
+	
+	function BaseClass(name, instvarnames, clsvarnames, supercls) {
+		this.name = name;
+		this.instvarnames = instvarnames;
+		this.clsvarnames = clsvarnames;
+		this.supercls = supercls;
+		this.methods = {};
+	};
+	
+	BaseClass.prototype.__proto__ = BaseObject.prototype;
+	
+	BaseClass.prototype.defineMethod = function (selector, method) 
+	{
+		this.methods[selector] = method;
+	};
+	
+	BaseClass.prototype.getInstanceSize = function() {
+		var result = this.instvarnames.length;
+		if (this.supercls)
+			result += this.supercls.getInstanceSize();
+			
+		return result;
+	};
+
+	BaseClass.prototype.lookupInstanceMethod = function (selector) 
+	{
+		var result = this.methods[selector];
+		if (result == null && this.supercls)
+			return this.supercls.lookupInstanceMethod(selector);
+		return result;
+	};
+
+	// TODO Quick Hack, for Object class that has no superclass
+	BaseClass.prototype.lookup = function(selector)
+	{
+		return this.lookupInstanceMethod(selector);
+	}
+	
+	Smalltalk.Object = new BaseClass('Object', [], [], null);
+
+	// TODO Quick hack, class method as instance method
+	Smalltalk.Object.defineMethod('compileMethod:', function(text)
+		{
+			var compiler = new Compiler();
+			var method = compiler.compileMethod(text, this);
+			this.defineMethod(method.name, method);
+			return method;
+		});
+
+		// TODO Quick hack, class method as instance method
+	Smalltalk.Object.defineMethod('new', function()
+		{
+			return new BaseObject(this);
+		});
+	
 	var ByteCodes = {
 		GetValue: 0,
 		GetArgument: 1,
@@ -64,181 +88,8 @@
 		Multiply: 22,
 		Divide: 23,
 		SendMessage: 40,
-		NewList: 41,
 		Return: 50
 	};
-    
-    function createMetaclass(name, supermetaklass, clsvarnames)
-    {
-        var protometaklass = new Function();
-        
-        if (supermetaklass)
-        {
-			// Chain metaclass prototypes
-            protometaklass.prototype.__proto__ = supermetaklass.proto;
-        }
-        else
-        {
-			// First metaclass methods
-        }
-        
-        var metaklass = new protometaklass;
-		
-		// Function with prototype of this metaklass instances
-        metaklass.func = new Function();
-        metaklass.proto = protometaklass.prototype;
-        metaklass.$name = name;
-        metaklass.super = supermetaklass;
-        metaklass.instvarnames = clsvarnames;
-        
-        metaklass.func.prototype.klass = metaklass;
-		
-		if (supermetaklass) 
-		{
-			// Chaining instances prototypes
-            metaklass.func.prototype.__proto__ = supermetaklass.func.prototype;
-		}
-        else 
-		{   
-			// First instance methods
-		}
-        
-        Smalltalk[name] = metaklass;
-        
-        return metaklass;
-    }
-
-    function createClass(name, superklass, instvarnames, clsvarnames)
-    {
-		var protometaklass = createMetaclass(name + ' class', superklass ? superklass.klass : null, clsvarnames);
-        var protoklass = protometaklass.func;
-        
-        if (superklass)
-        {
-			// Chain class prototypes
-            protoklass.prototype.__proto__ = superklass.proto;
-        }
-        else
-        {
-			// TODO Tricky fist metaclass inherits first class (it should be Object)
-			protometaklass.proto.__proto__ = protoklass.prototype;
-			
-			// First class methods
-            protoklass.prototype.basicNew = function()
-            {
-                var obj = new this.func;
-                obj.klass = this;
-                return obj;
-            }
-            
-            protoklass.prototype.defineSubclass = function(name, instvarnames, clsvarnames)
-            {
-                return createClass(name, this, instvarnames, clsvarnames);
-            }
-            
-            protoklass.prototype.defineMethod = function(name, method)
-            {
-                var mthname = name.replace(/:/g, '_');
-                if (typeof method == "function")
-                    this.func.prototype[mthname] = method;
-                else
-                    this.func.prototype[mthname] = method.toFunction();
-            }
-            
-            protoklass.prototype.defineClassMethod = function(name, method)
-            {
-                var mthname = name.replace(/:/g, '_');
-                if (typeof method == "function")
-                    this.proto[mthname] = method;
-                else
-                    this.proto[mthname] = method.toFunction();
-            }
-        }
-        
-        var klass = new protoklass;
-		
-		// Function with prototype of this klass instances
-        klass.func = new Function();
-        klass.proto = protoklass.prototype;
-        klass.$name = name;
-        klass.super = superklass;
-        klass.instvarnames = instvarnames;
-        klass.clsvarnames = clsvarnames;
-		klass.klass = protometaklass;
-        
-        klass.func.prototype.klass = klass;
-		
-		if (superklass) 
-		{
-			// Chaining instances prototypes
-            klass.func.prototype.__proto__ = superklass.func.prototype;
-		}
-        else 
-		{   
-			// TODO Tricky first class inherits Object
-			klass.proto.__proto__ = klass.func.prototype;
-			
-			// First instance methods
-            klass.func.prototype.sendMessage = function(selector, args)
-            {
-                return this[selector].apply(this, args);
-            }
-		}
-        
-        Smalltalk[name] = klass;
-        
-        return klass;
-    }
-    
-    createClass('Object');
-	
-	Smalltalk.Object.defineMethod('class', function()
-		{
-			return this.klass;
-		});
-
-	Smalltalk.Object.defineClassMethod('compileMethod:', function(text)
-		{
-			var compiler = new Compiler();
-			var method = compiler.compileMethod(text, this);
-			this.defineMethod(method.name, method);
-			return method;
-		});
-	
-	Smalltalk.Object.defineClassMethod('name', function()
-		{
-			return this.$name;
-		});
-	
-	Smalltalk.Object.defineClassMethod('compileClassMethod:', function(text)
-		{
-			var compiler = new Compiler();
-			var method = compiler.compileMethod(text, this);
-			this.defineClassMethod(method.name, method);
-			return method;
-		});
-		
-	Smalltalk.Object.defineClassMethod('subclass:instanceVariableNames:classVariableNames:',
-		function (name, instvarnames, clsvarnames)
-		{
-			createClass(name, this, toNames(instvarnames), toNames(clsvarnames));
-		});
-		
-	function toNames(text)
-	{
-		var words = text.split(' ');
-		var result = [];
-		var l = words.length;
-		
-		for (var k = 0; k <  l; k++)
-			if (words[k])
-				result.push(words[k]);
-				
-		if (result.length == 0)
-			return null;
-
-		return result;
-	}
 	
 	var Functions = [];
 	
@@ -316,7 +167,7 @@
 					break;
 				case ByteCodes.GetInstanceVariable:
 					var niv = bc[ip++];
-					stack.push(this.self[this.block.values[niv]]);
+					stack.push(this.self.variables[niv]);
 					break;
 				case ByteCodes.GetGlobalVariable:
 					nv = bc[ip++];
@@ -324,7 +175,7 @@
 					break;
 				case ByteCodes.SetInstanceVariable:
 					niv = bc[ip++];
-					this.self[this.block.values[niv]] = stack.pop();
+					this.self.variables[niv] = stack.pop();
 					break;
 				case ByteCodes.SetGlobalVariable:
 					nv = bc[ip++];
@@ -366,16 +217,6 @@
 						
 					var target = stack.pop();
 					stack.push(target.sendMessage(selector, args));
-					
-					break;
-				case ByteCodes.NewList:
-					var nitems = bc[ip++];
-					var result = [];
-					
-					for (var k = 0; k < nitems; k++)
-						result.unshift(stack.pop());
-					
-					stack.push(result);
 					
 					break;
 				default:
@@ -665,25 +506,18 @@
 		return signature;
 	}
 	
-	Compiler.prototype.compileExpressions = function(block, lexer, islist)
+	Compiler.prototype.compileExpressions = function(block, lexer)
 	{
 		var token = lexer.nextToken();
-		var nexprs = 0;
 		
 		while (token != null) 
 		{
 			lexer.pushToken(token);
 			this.compileExpression(block, lexer);
-			nexprs++;
 			token = lexer.nextToken();
 			
 			if (token != null && (!token.isSeparator() || token.value != '.'))
-			{
-				if (islist && token.isSeparator() && token.value == '}')
-					return nexprs;
-					
 				throw "Unexpected " + token.value;
-			}
 				
 			token = lexer.nextToken();
 		}
@@ -721,9 +555,8 @@
 		
 		if (token != null)
 			lexer.pushToken(token);
-
-        var mthselector = selector.replace(/:/g,'_');
-		var position = block.addValue(mthselector);
+			
+		var position = block.addValue(selector);
 		block.compileByteCode(ByteCodes.GetValue, position);
 		block.compileByteCode(ByteCodes.SendMessage, arity);
 	}
@@ -790,18 +623,11 @@
 			
 		if (token.isName()) 
 		{
-            if (token.value == "self")
-            {
-                block.compileByteCode(ByteCodes.GetSelf);
-                return;
-            }
-            
 			var name = token.value;
 			var position = 0;
 			var islocal = false;
 			var isargument = false;
 			var isvariable = false;
-            var varname = null;
 			
 			if (block.argnames != null)
 			{
@@ -831,8 +657,7 @@
 				
 				if (index >= 0)
 				{
-                    varname = '$' + name;                    
-					position = block.addValue(varname);
+					position = index;
 					isvariable = true;
 				}
 			}
@@ -879,13 +704,6 @@
 			return;
 		}
 		
-		if (token.isSeparator() && token.value == '{')
-		{
-			var nexprs = this.compileExpressions(block, lexer, true);
-			block.compileByteCode(ByteCodes.NewList, nexprs);
-			return;
-		}
-		
 		if (token.isString() || token.isNumber())
 		{
 			var position = block.addValue(token.value);
@@ -911,8 +729,8 @@
 		return token.value;
 	}
 	
-	Smalltalk.Object.compileClassMethod_("new ^self basicNew.");
-        
+	exports.BaseClass = BaseClass;
+	exports.BaseObject = BaseObject;
 	exports.Block = Block;
 	exports.ByteCodes = ByteCodes;
 	exports.Block = Block;
@@ -922,7 +740,4 @@
 	
 	exports.Smalltalk = Smalltalk;
     
-})(typeof exports == 'undefined' ? this['ajtalk'] = {} : exports,
-   typeof global == 'undefined' ? this : global
-    );
-
+})(typeof exports == 'undefined' ? this['ajtalk'] = {} : exports);
