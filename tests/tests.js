@@ -3,6 +3,183 @@ var assert = require('assert');
 var ajtalk = require('../lib/ajtalk.js');
 var Smalltalk = ajtalk.Smalltalk;
 
+// Lexer
+
+// Parse a name
+
+var lexer = new ajtalk.Lexer("name");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse a name and dot
+
+var lexer = new ajtalk.Lexer("name.");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSeparator());
+assert.equal(".", token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Skip comment
+
+lexer = new ajtalk.Lexer('"a comment"');
+token = lexer.nextToken();
+assert.equal(null, token);
+
+// Parse a name with comments
+
+lexer = new ajtalk.Lexer('"first comment" name "second comment"');
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("name", token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse two names
+
+lexer = new ajtalk.Lexer("self class");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("self", token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal("class", token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse an integer number
+
+lexer = new ajtalk.Lexer("123");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isNumber());
+assert.equal(123, token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse an integer number and dot
+
+lexer = new ajtalk.Lexer("123. ");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isNumber());
+assert.equal(123, token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSeparator());
+assert.equal('.', token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse a string
+
+lexer = new ajtalk.Lexer("'foo'");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isString());
+assert.equal('foo', token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse a keyword
+
+lexer = new ajtalk.Lexer("at:");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.equal('at:', token.value);
+assert.ok(token.isKeyword());
+
+assert.equal(null, lexer.nextToken());
+
+// Parse add operator
+
+lexer = new ajtalk.Lexer('+');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('+', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse return operator
+
+lexer = new ajtalk.Lexer('^');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('^', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse assignment operator
+
+lexer = new ajtalk.Lexer(':=');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal(':=', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse assignment
+
+lexer = new ajtalk.Lexer('a := 3');
+
+token = lexer.nextToken();
+assert.ok(token.isName());
+assert.equal('a', token.value);
+
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal(':=', token.value);
+
+token = lexer.nextToken();
+assert.ok(token.isNumber());
+assert.equal(3, token.value);
+
+assert.equal(null, lexer.nextToken());
+
+// Parse return
+
+lexer = new ajtalk.Lexer('^a');
+
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('^', token.value);
+
+token = lexer.nextToken();
+assert.ok(token.isName());
+assert.equal('a', token.value);
+
+assert.equal(null, lexer.nextToken());
+
+
 // New Experimental Implementation tests
 
 // Objects methods
