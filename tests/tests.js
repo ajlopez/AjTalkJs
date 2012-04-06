@@ -184,3 +184,8 @@ assert.equal(2, result[1]);
 assert.equal(8, result[2]);
 assert.equal(Smalltalk.Global, result[3]);
 
+// Chunck Reader
+
+var chreader = new ajtalk.ChunckReader(null);
+assert.equal(null, chreader.nextChunck());
+
