@@ -20,6 +20,17 @@ assert.ok(token.isName());
 assert.equal("name", token.value);
 assert.equal(null, lexer.nextToken());
 
+// Parse a symbol
+
+var lexer = new ajtalk.Lexer("#Point");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSymbol());
+assert.equal("Point", token.value);
+assert.equal(null, lexer.nextToken());
+
 // Parse a name and dot
 
 var lexer = new ajtalk.Lexer("name.");
@@ -149,6 +160,22 @@ lexer = new ajtalk.Lexer(':=');
 token = lexer.nextToken();
 assert.ok(token.isOperator());
 assert.equal(':=', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse less operator
+
+lexer = new ajtalk.Lexer('<');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('<', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse less or equal operator
+
+lexer = new ajtalk.Lexer('<=');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('<=', token.value);
 assert.equal(null, lexer.nextToken());
 
 // Parse assignment
@@ -369,6 +396,20 @@ assert.equal(2, signature.argnames.length);
 assert.equal("aName", signature.argnames[0]);
 assert.equal("aValue", signature.argnames[1]);
 assert.equal(0, signature.localnames.length);
+
+// Compile keyword method signature, with locals
+
+lexer = new ajtalk.Lexer("at: aName put: aValue |a b|");
+var signature = compiler.compileMethodSignature(lexer);
+
+assert.notEqual(null, signature);
+assert.equal("at:put:", signature.name);
+assert.equal(2, signature.argnames.length);
+assert.equal("aName", signature.argnames[0]);
+assert.equal("aValue", signature.argnames[1]);
+assert.equal(2, signature.localnames.length);
+assert.equal("a", signature.localnames[0]);
+assert.equal("b", signature.localnames[1]);
 
 // Compile get method
 
@@ -651,4 +692,32 @@ assert.equal(null, chreader.nextChunck());
 var content = fs.readFileSync(__dirname + '/PharoCorePoint.st').toString();
 chreader = new ajtalk.ChunckReader(content);
 assert.notEqual(null, chreader.nextChunck());
+
+// read and parse file
+
+chreader = new ajtalk.ChunckReader(content);
+var chunck = chreader.nextChunck();
+var ismethod = false;
+
+while (chunck != null)
+{
+	if (!ismethod)
+		result = compiler.compileBlock(chunck);
+	else
+	{
+		result = compiler.compileMethod(chunck, cls);
+		if (result != null)
+			console.log('method ' + result.name);
+	}
+
+	if (!ismethod)
+	{
+		if (chunck.indexOf(' methodsFor: ') >= 0)
+			ismethod = true;
+	}
+	else if (result == null)
+		ismethod = false;
+		
+	chunck = chreader.nextChunck();
+}
 
