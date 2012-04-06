@@ -1,5 +1,6 @@
 
 var assert = require('assert');
+var fs = require('fs');
 var ajtalk = require('../lib/ajtalk.js');
 var Smalltalk = ajtalk.Smalltalk;
 
@@ -644,3 +645,10 @@ assert.equal(null, chreader.nextChunck());
 chreader = new ajtalk.ChunckReader("self error: 'Error!!!!'");
 assert.equal("self error: 'Error!!'", chreader.nextChunck());
 assert.equal(null, chreader.nextChunck());
+
+// read file
+
+var content = fs.readFileSync(__dirname + '/PharoCorePoint.st').toString();
+chreader = new ajtalk.ChunckReader(content);
+assert.notEqual(null, chreader.nextChunck());
+
