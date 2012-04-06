@@ -189,3 +189,28 @@ assert.equal(Smalltalk.Global, result[3]);
 var chreader = new ajtalk.ChunckReader(null);
 assert.equal(null, chreader.nextChunck());
 
+chreader = new ajtalk.ChunckReader('a:=1');
+assert.equal('a:=1', chreader.nextChunck());
+assert.equal(null, chreader.nextChunck());
+
+chreader = new ajtalk.ChunckReader('a:=1! b:=1! !');
+assert.equal('a:=1', chreader.nextChunck());
+assert.equal(' b:=1', chreader.nextChunck());
+assert.equal(' ', chreader.nextChunck());
+assert.equal(null, chreader.nextChunck());
+
+chreader = new ajtalk.ChunckReader("self error: 'Error!!'! b:=1! !");
+assert.equal("self error: 'Error!'", chreader.nextChunck());
+assert.equal(' b:=1', chreader.nextChunck());
+assert.equal(' ', chreader.nextChunck());
+assert.equal(null, chreader.nextChunck());
+
+chreader = new ajtalk.ChunckReader("self error: 'Error!!!!'! b:=1! !");
+assert.equal("self error: 'Error!!'", chreader.nextChunck());
+assert.equal(' b:=1', chreader.nextChunck());
+assert.equal(' ', chreader.nextChunck());
+assert.equal(null, chreader.nextChunck());
+
+chreader = new ajtalk.ChunckReader("self error: 'Error!!!!'");
+assert.equal("self error: 'Error!!'", chreader.nextChunck());
+assert.equal(null, chreader.nextChunck());
