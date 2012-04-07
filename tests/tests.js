@@ -143,6 +143,18 @@ assert.equal('foo', token.value);
 
 assert.equal(null, lexer.nextToken());
 
+// Parse a negative integer
+
+lexer = new ajtalk.Lexer("-123");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isNumber());
+assert.equal(-123, token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Parse a keyword
 
 lexer = new ajtalk.Lexer("at:");
@@ -152,6 +164,18 @@ token = lexer.nextToken();
 assert.notEqual(null, token);
 assert.equal('at:', token.value);
 assert.ok(token.isKeyword());
+
+assert.equal(null, lexer.nextToken());
+
+// Parse character
+
+lexer = new ajtalk.Lexer("$(");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.equal('(', token.value);
+assert.ok(token.isCharacter());
 
 assert.equal(null, lexer.nextToken());
 
