@@ -30,6 +30,24 @@ assert.ok(token.isSymbol());
 assert.equal("Point", token.value);
 assert.equal(null, lexer.nextToken());
 
+// Parse a symbol and dot
+
+var lexer = new ajtalk.Lexer("#Point.");
+
+var token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSymbol());
+assert.equal("Point", token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isSeparator());
+assert.equal(".", token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Parse a name and dot
 
 var lexer = new ajtalk.Lexer("name.");
