@@ -1,4 +1,3 @@
-
 var assert = require('assert');
 var fs = require('fs');
 var ajtalk = require('../lib/ajtalk.js');
@@ -173,6 +172,14 @@ assert.equal(null, lexer.nextToken());
 // Parse less or equal operator
 
 lexer = new ajtalk.Lexer('<=');
+token = lexer.nextToken();
+assert.ok(token.isOperator());
+assert.equal('<=', token.value);
+assert.equal(null, lexer.nextToken());
+
+// Parse less or equal operator with spaces
+
+lexer = new ajtalk.Lexer(' <= ');
 token = lexer.nextToken();
 assert.ok(token.isOperator());
 assert.equal('<=', token.value);
