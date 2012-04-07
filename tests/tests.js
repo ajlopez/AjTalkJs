@@ -468,6 +468,10 @@ obj.sendMessage("a_", [50]);
 assert.equal(obj.$a, obj.sendMessage("a"));
 assert.equal(50, obj.$a);
 
+// Compile block without parameters
+
+block = compiler.compileBlock("[^a + 1]");
+
 // New Object
 
 var newobj = cls.new();
