@@ -217,6 +217,16 @@ assert.equal('a', token.value);
 
 assert.equal(null, lexer.nextToken());
 
+// Parse parameter name
+
+lexer = new ajtalk.Lexer(':k');
+
+token = lexer.nextToken();
+assert.ok(token.isParameter());
+assert.equal('k', token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Compiler
 
 // Compile simple block
@@ -478,6 +488,14 @@ assert.equal(50, obj.$a);
 // Compile block without parameters
 
 block = compiler.compileBlock("[^a + 1]");
+
+// Compile block with parameters
+
+block = compiler.compileBlock("[:a | ^a + 1]");
+assert.notEqual(null, block.values);
+assert.notEqual(null, block.values[0].parameternames);
+assert.equal(1, block.values[0].parameternames.length);
+assert.equal('a', block.values[0].parameternames[0]);
 
 // New Object
 
