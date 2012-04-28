@@ -727,68 +727,65 @@ assert.equal(2, result[1]);
 assert.equal(8, result[2]);
 assert.equal(Smalltalk.Global, result[3]);
 
-// Chunck Reader
+// Chunk Reader
 
-var chreader = new ajtalk.ChunckReader(null);
-assert.equal(null, chreader.nextChunck());
+var chreader = new ajtalk.ChunkReader(null);
+assert.equal(null, chreader.nextChunk());
 
-chreader = new ajtalk.ChunckReader('a:=1');
-assert.equal('a:=1', chreader.nextChunck());
-assert.equal(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader('a:=1');
+assert.equal('a:=1', chreader.nextChunk());
+assert.equal(null, chreader.nextChunk());
 
-chreader = new ajtalk.ChunckReader('a:=1! b:=1! !');
-assert.equal('a:=1', chreader.nextChunck());
-assert.equal(' b:=1', chreader.nextChunck());
-assert.equal(' ', chreader.nextChunck());
-assert.equal(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader('a:=1! b:=1! !');
+assert.equal('a:=1', chreader.nextChunk());
+assert.equal('b:=1', chreader.nextChunk());
+assert.equal('', chreader.nextChunk());
+assert.equal(null, chreader.nextChunk());
 
-chreader = new ajtalk.ChunckReader("self error: 'Error!!'! b:=1! !");
-assert.equal("self error: 'Error!'", chreader.nextChunck());
-assert.equal(' b:=1', chreader.nextChunck());
-assert.equal(' ', chreader.nextChunck());
-assert.equal(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader("self error: 'Error!!'! b:=1! !");
+assert.equal("self error: 'Error!'", chreader.nextChunk());
+assert.equal('b:=1', chreader.nextChunk());
+assert.equal('', chreader.nextChunk());
+assert.equal(null, chreader.nextChunk());
 
-chreader = new ajtalk.ChunckReader("self error: 'Error!!!!'! b:=1! !");
-assert.equal("self error: 'Error!!'", chreader.nextChunck());
-assert.equal(' b:=1', chreader.nextChunck());
-assert.equal(' ', chreader.nextChunck());
-assert.equal(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader("self error: 'Error!!!!'! b:=1! !");
+assert.equal("self error: 'Error!!'", chreader.nextChunk());
+assert.equal('b:=1', chreader.nextChunk());
+assert.equal('', chreader.nextChunk());
+assert.equal(null, chreader.nextChunk());
 
-chreader = new ajtalk.ChunckReader("self error: 'Error!!!!'");
-assert.equal("self error: 'Error!!'", chreader.nextChunck());
-assert.equal(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader("self error: 'Error!!!!'");
+assert.equal("self error: 'Error!!'", chreader.nextChunk());
+assert.equal(null, chreader.nextChunk());
 
 // read file
 
 var content = fs.readFileSync(__dirname + '/PharoCorePoint.st').toString();
-chreader = new ajtalk.ChunckReader(content);
-assert.notEqual(null, chreader.nextChunck());
+chreader = new ajtalk.ChunkReader(content);
+assert.notEqual(null, chreader.nextChunk());
 
 // read and parse file
 
-chreader = new ajtalk.ChunckReader(content);
-var chunck = chreader.nextChunck();
+chreader = new ajtalk.ChunkReader(content);
+var chunk = chreader.nextChunk();
 var ismethod = false;
 
-while (chunck != null)
+while (chunk != null)
 {
-	if (!ismethod)
-		result = compiler.compileBlock(chunck);
-	else
-	{
-		result = compiler.compileMethod(chunck, cls);
-		if (result != null)
-			console.log('method ' + result.name);
-	}
-
-	if (!ismethod)
-	{
-		if (chunck.indexOf(' methodsFor: ') >= 0)
-			ismethod = true;
-	}
-	else if (result == null)
-		ismethod = false;
+    var isreader = false;
+    
+    if (chunk != null && chunk.length > 0 && chunk[0] == '!')
+    {
+        chunk = chunk.slice(1);
+        isreader = true;
+    }
+    
+    result = compiler.compileBlock(chunk);
+    result = result.apply();
+    
+    if (isreader)
+        result.scanFrom(chreader);            
 		
-	chunck = chreader.nextChunck();
+	chunk = chreader.nextChunk();
 }
 
