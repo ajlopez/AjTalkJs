@@ -18,6 +18,8 @@ assert.equal(6, 3 * 2);
 assert.equal(6, 3 * two);
 assert.equal(6, two * 3);
 assert.equal(6, two['*'](3));
+assert.ok(two['@']);
+assert.ok((two+1)['@']);
 
 // Lexer
 
@@ -811,3 +813,25 @@ assert.equal(point.klass, Smalltalk.Point);
 point.setX_setY_(10, 20);
 assert.equal(10, point.$x);
 assert.equal(20, point.$y);
+assert.equal(10, point.x());
+assert.equal(20, point.y());
+
+point2 = Smalltalk.Point.basicNew().setX_setY_(5, 7);
+
+assert.ok(point2);
+assert.equal(5, point2.x());
+assert.equal(7, point2.y());
+
+var point3 = Smalltalk.Point.x_y_(15, 25);
+
+assert.ok(point3);
+
+assert.ok(point3.x()['@']);
+assert.ok((point3.x()+point3.y())['@']);
+
+var point4 = point.translateBy_(point3);
+
+assert.ok(point4);
+assert.equal(25, point4.x());
+assert.equal(45, point4.y());
+
