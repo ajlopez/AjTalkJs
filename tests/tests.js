@@ -789,3 +789,12 @@ while (chunk != null)
 	chunk = chreader.nextChunk();
 }
 
+assert.ok(Smalltalk.Point);
+point = Smalltalk.Point.basicNew();
+
+assert.ok(point);
+assert.equal(point.klass, Smalltalk.Point);
+
+point.setX_setY_(10, 20);
+assert.equal(10, point.$x);
+assert.equal(20, point.$y);
