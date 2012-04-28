@@ -847,4 +847,10 @@ assert.ok(point2);
 assert.equal(Math.cos(45 * 2 * Math.PI / 360), point2.x());
 assert.equal(Math.sin(45 * 2 * Math.PI / 360), point2.y());
 
+// TODO
+
+// rounded
+// http://stackoverflow.com/questions/3885817/how-to-check-if-a-number-is-float-or-integer
+// http://forums.instantiations.com/topic-12-4970.html
+// http://www.electrictoolbox.com/javascript-round-numbers/
 
