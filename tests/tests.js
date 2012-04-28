@@ -835,3 +835,7 @@ assert.ok(point4);
 assert.equal(25, point4.x());
 assert.equal(45, point4.y());
 
+point4 = point.scaleBy_(Smalltalk.Point.x_y_(2,3));
+assert.ok(point4);
+assert.equal(20, point4.x());
+assert.equal(60, point4.y());
