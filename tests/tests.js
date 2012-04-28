@@ -839,3 +839,10 @@ point4 = point.scaleBy_(Smalltalk.Point.x_y_(2,3));
 assert.ok(point4);
 assert.equal(20, point4.x());
 assert.equal(60, point4.y());
+
+point2 = Smalltalk.Point.r_degrees_(1, 45);
+assert.ok(point2);
+assert.equal(Math.cos(45 * 2 * Math.PI / 360), point2.x());
+assert.equal(Math.sin(45 * 2 * Math.PI / 360), point2.y());
+
+
