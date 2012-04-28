@@ -6,6 +6,19 @@ var Smalltalk = ajtalk.Smalltalk;
 var cls = Smalltalk.Object.defineSubclass('SampleObject', ['a', 'b', 'c']);
 var obj = cls.basicNew();
 
+// Number methods
+
+var one = new Number(1);
+var two = new Number(2);
+assert.equal(1, one.min_(2));
+assert.equal(2, one.max_(2));
+assert.equal(1, one.min_(two));
+assert.equal(2, one.max_(two));
+assert.equal(6, 3 * 2);
+assert.equal(6, 3 * two);
+assert.equal(6, two * 3);
+assert.equal(6, two['*'](3));
+
 // Lexer
 
 // Parse a name
