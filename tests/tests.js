@@ -20,6 +20,8 @@ assert.equal(6, two * 3);
 assert.equal(6, two['*'](3));
 assert.ok(two['@']);
 assert.ok((two+1)['@']);
+assert.ok(two.isInteger());
+assert.ok(!Math.PI.isInteger());
 
 // Lexer
 
