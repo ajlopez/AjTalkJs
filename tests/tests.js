@@ -22,6 +22,10 @@ assert.ok(two['@']);
 assert.ok((two+1)['@']);
 assert.ok(two.isInteger());
 assert.ok(!Math.PI.isInteger());
+var onehalf = new Number(1.5);
+assert.equal(2, onehalf.rounded());
+var minusonehalf = new Number(-1.5);
+assert.equal(-1, minusonehalf.rounded());
 
 // Lexer
 
