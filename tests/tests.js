@@ -561,6 +561,15 @@ assert.notEqual(null, block.values[0].parameternames);
 assert.equal(1, block.values[0].parameternames.length);
 assert.equal('a', block.values[0].parameternames[0]);
 
+// Compile primitive with number
+
+block = compiler.compileBlock("<primitive: 110>");
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.Primitive, block.bytecodes[0]);
+assert.equal(110, block.bytecodes[1]);
+
 // New Object
 
 var newobj = cls.new();
@@ -749,6 +758,14 @@ assert.equal(2, result[1]);
 assert.equal(8, result[2]);
 assert.equal(Smalltalk.Global, result[3]);
 
+// Compile empty list
+
+block = compiler.compileBlock("#()");
+result = block.apply();
+
+assert.ok(result);
+assert.equal(0, result.length);
+
 // Chunk Reader
 
 var chreader = new ajtalk.ChunkReader(null);
@@ -782,14 +799,14 @@ assert.equal(null, chreader.nextChunk());
 
 // read file
 
-var content = fs.readFileSync(__dirname + '/PharoCorePoint.st').toString();
+var filename = __dirname + '/PharoCorePoint.st';
+var content = fs.readFileSync(filename).toString();
 chreader = new ajtalk.ChunkReader(content);
 assert.notEqual(null, chreader.nextChunk());
 
 // read and parse file
 
-chreader = new ajtalk.ChunkReader(content);
-chreader.process();
+ajtalk.load(filename);
 
 assert.ok(Smalltalk.Point);
 point = Smalltalk.Point.basicNew();
@@ -832,9 +849,12 @@ assert.ok(point2);
 assert.equal(Math.cos(45 * 2 * Math.PI / 360), point2.x());
 assert.equal(Math.sin(45 * 2 * Math.PI / 360), point2.y());
 
+// read, parse and compile Pharo Kernel Objects
+
+// ajtalk.load(__dirname + '/PharoCoreKernelObjects.st');
+
 // TODO
 
-// rounded
 // http://stackoverflow.com/questions/3885817/how-to-check-if-a-number-is-float-or-integer
 // http://forums.instantiations.com/topic-12-4970.html
 // http://www.electrictoolbox.com/javascript-round-numbers/
