@@ -789,27 +789,7 @@ assert.notEqual(null, chreader.nextChunk());
 // read and parse file
 
 chreader = new ajtalk.ChunkReader(content);
-var chunk = chreader.nextChunk();
-var ismethod = false;
-
-while (chunk != null)
-{
-    var isreader = false;
-    
-    if (chunk != null && chunk.length > 0 && chunk[0] == '!')
-    {
-        chunk = chunk.slice(1);
-        isreader = true;
-    }
-    
-    result = compiler.compileBlock(chunk);
-    result = result.apply();
-    
-    if (isreader)
-        result.scanFrom(chreader);            
-		
-	chunk = chreader.nextChunk();
-}
+chreader.process();
 
 assert.ok(Smalltalk.Point);
 point = Smalltalk.Point.basicNew();
