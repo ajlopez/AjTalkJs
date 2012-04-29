@@ -10,6 +10,22 @@ exports['Load Squeak Object'] = function(test) {
 	test.done();
 };
 
+exports['Load Pharo Point'] = function(test) {
+	ajtalk.load(__dirname + '/../pharo/Point.st');
+
+	test.ok(Smalltalk.Point);
+	
+	test.done();
+};
+
+exports['Load Pharo Rectangle'] = function(test) {
+	ajtalk.load(__dirname + '/../pharo/Rectangle.st');
+
+	test.ok(Smalltalk.Point);
+	
+	test.done();
+};
+
 exports['Load Pharo Kernel Objects'] = function(test) {
 	ajtalk.load(__dirname + '/../pharo/KernelObjects.st');
 
