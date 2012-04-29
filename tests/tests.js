@@ -891,7 +891,7 @@ assert.equal(Math.sin(45 * 2 * Math.PI / 360), point2.y());
 
 // read, parse and compile Pharo Kernel Objects
 
-// ajtalk.load(__dirname + '/PharoCoreKernelObjects.st');
+ajtalk.load(__dirname + '/PharoCoreKernelObjects.st');
 
 // TODO
 
