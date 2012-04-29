@@ -14,8 +14,7 @@ function Response(res) {
 }
 
 http.createServer(function(req,res) {
-	var html = Smalltalk.HtmlCanvas.basicNew();
-	html.setResponse_(res);
+	var html = Smalltalk.HtmlCanvas.new_(res);
 	page.render_(html);
 	res.end();
 }).listen(8080);

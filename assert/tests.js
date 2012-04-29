@@ -708,6 +708,15 @@ assert.ok(Smalltalk.Object.func);
 assert.ok(Smalltalk.Object.klass);
 assert.ok(Smalltalk.Object.klass.func);
 
+// new
+
+obj = Smalltalk.Object.new();
+
+assert.equal(obj.klass, Smalltalk.Object);
+assert.ok(Smalltalk.Object.func);
+assert.ok(Smalltalk.Object.klass);
+assert.ok(Smalltalk.Object.klass.func);
+
 // class method
 
 assert.ok(obj.class());
