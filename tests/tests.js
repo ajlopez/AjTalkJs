@@ -570,6 +570,28 @@ assert.notEqual(null, block);
 assert.equal(ajtalk.ByteCodes.Primitive, block.bytecodes[0]);
 assert.equal(110, block.bytecodes[1]);
 
+// Compile primitive with string
+
+block = compiler.compileBlock("<primitive: 'var a = 1'>");
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.NativePrimitive, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal(1, block.values.length);
+assert.equal('var a = 1', block.values[0]);
+
+// Compile primitive with string and module
+
+block = compiler.compileBlock("<primitive:'' module:''>");
+
+assert.notEqual(null, block);
+
+assert.equal(ajtalk.ByteCodes.NativePrimitive, block.bytecodes[0]);
+assert.equal(0, block.bytecodes[1]);
+assert.equal(1, block.values.length);
+assert.equal('', block.values[0]);
+
 // New Object
 
 var newobj = cls.new();
