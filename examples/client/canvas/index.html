@@ -1,0 +1,48 @@
+<html>
+<head>
+	<title>Hello Canvas</title>
+	
+	<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+	<script type="text/javascript" src="ajtalk.js"></script>
+	<script type="text/javascript">
+//		jQuery.ready(function() {
+			//alert(document.getElementById('PointSt').innerHTML);
+		//});
+		jQuery.get('Point.st', null, function(data) { alert (data); }, 'text');
+		//ajtalk.loadFiles(['Point.st', 'ClientCanvas.st'], function() { alert('loaded'); doCanvas(); });
+	</script>
+</head>
+<body>
+<h1>Hello Canvas</h1>
+<canvas id="canvas" width="300" height="300">
+</canvas>
+<script type="text/javascript">
+
+function RealCanvas(context) {
+	this.x1_y1_x2_y2_ = function(x1, y1, x2, y2) {
+		context.beginPath();
+		context.moveTo(x1, y1);
+		context.lineTo(x2, y2);
+		context.closePath();
+		context.stroke();
+	}
+};
+
+/*
+function doCanvas() {
+	var canvas = document.getElementById('canvas');
+	context = canvas.getContext("2d");
+	context.strokeStyle = "black";
+	context.lineJoin = "round";
+	context.lineWidth = 5;
+	
+	var clientCanvas = ajtalk.ClientCanvas.new();
+	clientCanvas.$html5canvas = new RealCanvas(context);
+	clientCanvas.example1();
+	clientCanvas.example2();
+}
+*/
+	
+</script>
+</body>
+</html>

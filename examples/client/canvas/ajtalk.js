@@ -7,12 +7,13 @@ if (typeof require != 'undefined')
 (function(exports, top) {
 
     // Object new methods
-    
+
+/*    
     Object.prototype.sendMessage = function(selector, args)
     {
         return this[selector].apply(this, args);
     }
-    
+    */
     Object.prototype.nat_ = function(name)
     {
         return this[name];
@@ -528,7 +529,7 @@ if (typeof require != 'undefined')
 					var natprim = this.block.values[nv];
 					stack.push(eval(natprim));
 					break;
-				case ByteCodes.sendMessage:
+				case ByteCodes.SendMessage:
 					var arity = bc[ip++];
 					var selector = stack.pop();
 					var args = [];
@@ -541,7 +542,7 @@ if (typeof require != 'undefined')
 					if (!target)
 						target = Smalltalk.Nil;
                     
-					stack.push(target.sendMessage(selector, args));
+					stack.push(target[selector].apply(target, args));
 					
 					break;
 				case ByteCodes.NewList:
@@ -1136,7 +1137,7 @@ if (typeof require != 'undefined')
         var mthselector = selector.replace(/:/g,'_');
 		var position = block.addValue(mthselector);
 		block.compileByteCode(ByteCodes.GetValue, position);
-		block.compileByteCode(ByteCodes.sendMessage, arity);
+		block.compileByteCode(ByteCodes.SendMessage, arity);
 	}
 	
 	Compiler.prototype.compileBinaryExpression = function(block, lexer)
@@ -1177,7 +1178,7 @@ if (typeof require != 'undefined')
 					else {
 						var position = block.addValue(token.value);
 						block.compileByteCode(ByteCodes.GetValue, position);
-						block.compileByteCode(ByteCodes.sendMessage, 1);
+						block.compileByteCode(ByteCodes.SendMessage, 1);
 					}
 					break;
 			};
@@ -1199,7 +1200,7 @@ if (typeof require != 'undefined')
 		{
 			var position = block.addValue(token.value);
 			block.compileByteCode(ByteCodes.GetValue, position);
-			block.compileByteCode(ByteCodes.sendMessage, 0);
+			block.compileByteCode(ByteCodes.SendMessage, 0);
 			token = lexer.nextToken();
 		}
 		
