@@ -5,11 +5,8 @@
 	<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="ajtalk.js"></script>
 	<script type="text/javascript">
-//		jQuery.ready(function() {
-			//alert(document.getElementById('PointSt').innerHTML);
-		//});
-		jQuery.get('Point.st', null, function(data) { alert (data); }, 'text');
-		//ajtalk.loadFiles(['Point.st', 'ClientCanvas.st'], function() { alert('loaded'); doCanvas(); });
+		//jQuery.get('Point.st', null, function(data) { alert (data); }, 'text');
+		ajtalk.loadFiles(['Point.st', 'ClientCanvas.st'], function() { alert('loaded'); doCanvas(); });
 	</script>
 </head>
 <body>
@@ -28,7 +25,6 @@ function RealCanvas(context) {
 	}
 };
 
-/*
 function doCanvas() {
 	var canvas = document.getElementById('canvas');
 	context = canvas.getContext("2d");
@@ -36,12 +32,12 @@ function doCanvas() {
 	context.lineJoin = "round";
 	context.lineWidth = 5;
 	
-	var clientCanvas = ajtalk.ClientCanvas.new();
+	var clientCanvas = ajtalk.Smalltalk.ClientCanvas.new();
 	clientCanvas.$html5canvas = new RealCanvas(context);
 	clientCanvas.example1();
 	clientCanvas.example2();
 }
-*/
+
 	
 </script>
 </body>

@@ -8,36 +8,36 @@ if (typeof require != 'undefined')
 
     // Object new methods
 
-/*    
-    Object.prototype.sendMessage = function(selector, args)
+    
+    Object.defineProperty(Object.prototype, "sendMessage", function(selector, args)
     {
         return this[selector].apply(this, args);
-    }
-    */
-    Object.prototype.nat_ = function(name)
+    });
+
+    Object.defineProperty(Object.prototype, "nat_", function(name)
     {
         return this[name];
-    }
+    });
     
-    Object.prototype.nat_put_ = function(name, value)
+    Object.defineProperty(Object.prototype, "nat_put_", function(name, value)
     {
         this[name] = value;
         return value;
-    }
+    });
     
-    Object.prototype.napply_ = function(name)
+    Object.defineProperty(Object.prototype, "napply_", function(name)
     {
         return this[name].apply(this);
-    }
+    });
     
-    Object.prototype.napply_with_ = function(name, args)
+    Object.defineProperty(Object.prototype, "napply_with_", function(name, args)
     {
         return this[name].apply(this, args);
-    }
+    });
 	
-	Object.prototype.ifNul_ = function(block)
+	Object.defineProperty(Object.prototype, "ifNul_", function(block)
 	{
-	}
+	});
     
     // Number new methods
 
