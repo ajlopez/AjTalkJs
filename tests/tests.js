@@ -177,6 +177,24 @@ assert.equal(-123, token.value);
 
 assert.equal(null, lexer.nextToken());
 
+// Parse minus and name
+
+lexer = new ajtalk.Lexer("-title");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isOperator());
+assert.equal('-', token.value);
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isName());
+assert.equal('title', token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Parse a keyword
 
 lexer = new ajtalk.Lexer("at:");
@@ -381,6 +399,18 @@ block = compiler.compileBlock("1 + 3");
 assert.notEqual(null, block);
 assert.equal(2, block.values.length);
 assert.equal(4, block.apply());
+
+// Compile binary message
+
+block = compiler.compileBlock("a -title size");
+assert.ok(block.bytecodes);
+assert.equal(ajtalk.ByteCodes.Subtract, block.bytecodes[block.bytecodes.length-1]);
+
+// Compile two binary message
+
+block = compiler.compileBlock("a -3 -title size");
+assert.ok(block.bytecodes);
+assert.equal(ajtalk.ByteCodes.Subtract, block.bytecodes[block.bytecodes.length-1]);
 
 // Compile And Execute binary message ending in point
 
