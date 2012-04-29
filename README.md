@@ -6,7 +6,7 @@ See my other project (in C#): https://github.com/ajlopez/AjTalk
 
 Blog posts about AjTalk implementations: http://ajlopez.wordpress.com/category/ajtalk
 
-## Simple Tests
+## Simple Assert Tests
 
 I wrote simple test using node built-in assert module
 
