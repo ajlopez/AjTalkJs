@@ -592,6 +592,32 @@ assert.equal(0, block.bytecodes[1]);
 assert.equal(1, block.values.length);
 assert.equal('', block.values[0]);
 
+// Compile empty list
+
+block = compiler.compileBlock("#()");
+result = block.apply();
+
+assert.ok(result);
+assert.equal(0, result.length);
+
+// Evaluate primitive
+
+assert.ok(ajtalk.Primitives);
+assert.equal(0, ajtalk.Primitives.length);
+ajtalk.Primitives[0] = function(execblock) { return execblock.block.bytecodes[0]; }
+
+block = compiler.compileBlock("<primitive: 0>");
+result = block.apply();
+assert.equal(ajtalk.ByteCodes.Primitive, result);
+
+// Evaluate native primitive
+
+block = compiler.compileBlock("<primitive: '40 + 2'>");
+assert.equal(ajtalk.ByteCodes.NativePrimitive, block.bytecodes[0]);
+assert.equal(2, block.bytecodes.length);
+result = block.apply();
+assert.equal(42, result);
+
 // New Object
 
 var newobj = cls.new();
@@ -779,14 +805,6 @@ assert.equal(1, result[0]);
 assert.equal(2, result[1]);
 assert.equal(8, result[2]);
 assert.equal(Smalltalk.Global, result[3]);
-
-// Compile empty list
-
-block = compiler.compileBlock("#()");
-result = block.apply();
-
-assert.ok(result);
-assert.equal(0, result.length);
 
 // Chunk Reader
 
