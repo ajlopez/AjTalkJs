@@ -165,6 +165,18 @@ assert.equal('foo', token.value);
 
 assert.equal(null, lexer.nextToken());
 
+// Parse a string with quote
+
+lexer = new ajtalk.Lexer("'foo\'\''");
+
+token = lexer.nextToken();
+
+assert.notEqual(null, token);
+assert.ok(token.isString());
+assert.equal('foo\'', token.value);
+
+assert.equal(null, lexer.nextToken());
+
 // Parse a negative integer
 
 lexer = new ajtalk.Lexer("-123");
@@ -878,7 +890,7 @@ assert.equal(null, chreader.nextChunk());
 
 // read file
 
-var filename = __dirname + '/PharoCorePoint.st';
+var filename = __dirname + '/../pharo/Point.st';
 var content = fs.readFileSync(filename).toString();
 chreader = new ajtalk.ChunkReader(content);
 assert.notEqual(null, chreader.nextChunk());
@@ -928,9 +940,13 @@ assert.ok(point2);
 assert.equal(Math.cos(45 * 2 * Math.PI / 360), point2.x());
 assert.equal(Math.sin(45 * 2 * Math.PI / 360), point2.y());
 
+// read, parse and compile Squeak Objects
+
+ajtalk.load(__dirname + '/../squeak/Object.st');
+
 // read, parse and compile Pharo Kernel Objects
 
-ajtalk.load(__dirname + '/PharoCoreKernelObjects.st');
+ajtalk.load(__dirname + '/../pharo/KernelObjects.st');
 
 // TODO
 

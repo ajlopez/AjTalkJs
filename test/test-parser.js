@@ -2,7 +2,7 @@
 var ajtalk = require('../lib/ajtalk');
 var Smalltalk = ajtalk.Smalltalk;
 
-exports['Parse a name'] = function(test) {
+exports['Parse name'] = function(test) {
 	var lexer = new ajtalk.Lexer("name");
 	var token = lexer.nextToken();
 
@@ -14,7 +14,7 @@ exports['Parse a name'] = function(test) {
 	test.done();
 }
 
-exports['Parse a symbol'] = function(test) {
+exports['Parse symbol'] = function(test) {
 	var lexer = new ajtalk.Lexer("#Point");
 	var token = lexer.nextToken();
 
@@ -143,6 +143,19 @@ exports['Parse string'] = function(test) {
 	test.notEqual(null, token);
 	test.ok(token.isString());
 	test.equal('foo', token.value);
+
+	test.equal(null, lexer.nextToken());
+	
+	test.done();
+}
+
+exports['Parse string with quote'] = function(test) {
+	var lexer = new ajtalk.Lexer("'foo\'\''");
+	var token = lexer.nextToken();
+
+	test.notEqual(null, token);
+	test.ok(token.isString());
+	test.equal('foo\'', token.value);
 
 	test.equal(null, lexer.nextToken());
 	
