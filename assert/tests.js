@@ -635,13 +635,22 @@ assert.equal(0, block.bytecodes[1]);
 assert.equal(1, block.values.length);
 assert.equal('', block.values[0]);
 
-// Compile empty list
+// Compile empty constant array
 
 block = compiler.compileBlock("#()");
 result = block.apply();
 
 assert.ok(result);
 assert.equal(0, result.length);
+
+// Compile constant array
+
+block = compiler.compileBlock("#('foo')");
+result = block.apply();
+
+assert.ok(result);
+assert.equal(1, result.length);
+assert.equal('foo', result[0]);
 
 // Evaluate primitive
 
