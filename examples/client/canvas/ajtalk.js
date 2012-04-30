@@ -3,39 +3,54 @@
 
 if (typeof require != 'undefined')
 	var fs = require('fs');
+	
+var hasjquery = (typeof jQuery != 'undefined');
 
 (function(exports, top) {
 
-    // Object new methods
+	// define new prototype functionss
+	
+	function extend(klass, name, func)
+	{
+		if (hasjquery)
+		{
+			Object.defineProperty(klass.prototype, name, func);
+		}
+		else
+		{
+			klass.prototype[name] = func;
+		}
+	}
 
-    
-    Object.defineProperty(Object.prototype, "sendMessage", function(selector, args)
+    // Object new methods
+	
+	extend(Object, "sendMessage", function(selector, args)
     {
         return this[selector].apply(this, args);
     });
-
-    Object.defineProperty(Object.prototype, "nat_", function(name)
+    
+	extend(Object, "nat_", function(name)
     {
         return this[name];
     });
     
-    Object.defineProperty(Object.prototype, "nat_put_", function(name, value)
+	extend(Object, "nat_put_", function(name, value)
     {
         this[name] = value;
         return value;
     });
     
-    Object.defineProperty(Object.prototype, "napply_", function(name)
+	extend(Object, "napply_", function(name)
     {
         return this[name].apply(this);
     });
     
-    Object.defineProperty(Object.prototype, "napply_with_", function(name, args)
+	extend(Object, "napply_with_", function(name, args)
     {
         return this[name].apply(this, args);
     });
-	
-	Object.defineProperty(Object.prototype, "ifNul_", function(block)
+    
+	extend(Object, "ifNil_", function(block)
 	{
 	});
     
@@ -67,6 +82,11 @@ if (typeof require != 'undefined')
         return point;
     }
     
+	Number.prototype['do_'] = function(exeblock) {
+		for (var k=1; k<=this; k++)
+			exeblock.executeWithParameters([k]);
+	}
+	
     Number.prototype.asFloat = function() {
         return parseFloat(this);
     }
@@ -432,6 +452,12 @@ if (typeof require != 'undefined')
 		this.self = self;
 		this.args = args;
 		this.locals = new Array(block.nlocals);
+	}
+	
+	ExecutionBlock.prototype.executeWithParameters = function(parameters)
+	{
+		this.parameters = parameters;
+		return this.execute();
 	}
 	
 	ExecutionBlock.prototype.execute = function()
