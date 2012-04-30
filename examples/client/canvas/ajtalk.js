@@ -23,7 +23,7 @@ var hasjquery = (typeof jQuery != 'undefined');
 	}
 
     // Object new methods
-	
+/*	
 	extend(Object, "sendMessage", function(selector, args)
     {
         return this[selector].apply(this, args);
@@ -53,7 +53,7 @@ var hasjquery = (typeof jQuery != 'undefined');
 	extend(Object, "ifNil_", function(block)
 	{
 	});
-    
+*/    
     // Number new methods
 
     Number.prototype.max_ = function(x) {
@@ -136,21 +136,33 @@ var hasjquery = (typeof jQuery != 'undefined');
 		GetInstanceVariable: 3,
 		GetGlobalVariable: 4,
 		GetSelf: 5,
-		Primitive: 6,
-		NativePrimitive: 7,
-		LastTarget: 8,
-		GetBlock: 9,
+		GetNull: 6,
+		GetBlock: 7,
+		
 		SetLocal: 10,
 		SetInstanceVariable: 11,
 		SetGlobalVariable: 12,
+		
 		Add: 20,
 		Subtract: 21,
 		Multiply: 22,
 		Divide: 23,
 		Concatenate: 24,
+		
+		Primitive: 30,
+		NativePrimitive: 31,
+		LastTarget: 32,
+		
 		SendMessage: 40,
 		NewList: 41,
-		Return: 50
+		Return: 50,
+		
+		// Javascript bytecodes
+		
+		NativeAt: 100,
+		NativeAtPut: 101,
+		NativeApply: 102,
+		NativeNew: 103
 	};
     
     function createMetaclass(name, supermetaklass, clsvarnames)
@@ -515,6 +527,9 @@ var hasjquery = (typeof jQuery != 'undefined');
 				case ByteCodes.GetSelf:
 					stack.push(this.self);
 					break;
+				case ByteCodes.GetNull:
+					stack.push(null);
+					break;
 				case ByteCodes.LastTarget:
 					stack.push(target);
 					break;
@@ -569,6 +584,38 @@ var hasjquery = (typeof jQuery != 'undefined');
 						target = Smalltalk.Nil;
                     
 					stack.push(target[selector].apply(target, args));
+					
+					break;
+				case ByteCodes.NativeNew:
+					var args = stack.pop();
+					var target = stack.pop();
+					
+					stack.push(target.prototype.constructor.apply(target, args));
+					
+					break;
+				case ByteCodes.NativeApply:
+					var args = stack.pop();
+					var selector = stack.pop();						
+					var target = stack.pop();
+					
+					stack.push(target[selector].apply(target, args));
+					
+					break;
+				case ByteCodes.NativeAt:
+					var selector = stack.pop();
+					var target = stack.pop();
+					
+					stack.push(target[selector]);
+					
+					break;
+				case ByteCodes.NativeAtPut:
+					var value = stack.pop();
+					var selector = stack.pop();
+					var target = stack.pop();
+					
+					target[selector] = value;
+					
+					stack.push(value);
 					
 					break;
 				case ByteCodes.NewList:
@@ -1159,6 +1206,26 @@ var hasjquery = (typeof jQuery != 'undefined');
 		
 		if (token != null)
 			lexer.pushToken(token);
+			
+		switch (selector)
+		{
+			case 'nat:':
+				block.compileByteCode(ByteCodes.NativeAt);
+				return;
+			case 'nat:put:':
+				block.compileByteCode(ByteCodes.NativeAtPut);
+				return;
+			case 'napply:':
+				block.compileByteCode(ByteCodes.GetNull);
+				block.compileByteCode(ByteCodes.NativeApply);
+				return;
+			case 'napply:with:':
+				block.compileByteCode(ByteCodes.NativeApply);
+				return;
+			case 'nnew:':
+				block.compileByteCode(ByteCodes.NativeNew);
+				return;
+		}
 
         var mthselector = selector.replace(/:/g,'_');
 		var position = block.addValue(mthselector);
@@ -1224,9 +1291,19 @@ var hasjquery = (typeof jQuery != 'undefined');
 		
 		while (token != null && token.isName())
 		{
-			var position = block.addValue(token.value);
-			block.compileByteCode(ByteCodes.GetValue, position);
-			block.compileByteCode(ByteCodes.SendMessage, 0);
+			switch (token.value)
+			{
+				case 'nnew':
+					block.compileByteCode(ByteCodes.GetNull);
+					block.compileByteCode(ByteCodes.NativeNew);
+					break;
+				default:
+					var position = block.addValue(token.value);
+					block.compileByteCode(ByteCodes.GetValue, position);
+					block.compileByteCode(ByteCodes.SendMessage, 0);
+					break;
+			}
+			
 			token = lexer.nextToken();
 		}
 		
@@ -1451,7 +1528,7 @@ var hasjquery = (typeof jQuery != 'undefined');
 				this.compileConstantArray(block,lexer);
 			else {
 				var position = block.addValue(token.value);
-				block.compileByteCode(ByteCodes.GetBlock, position);				
+				block.compileByteCode(ByteCodes.GetValue, position);				
 			}
 			
 			nelements++;

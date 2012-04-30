@@ -652,6 +652,46 @@ assert.ok(result);
 assert.equal(1, result.length);
 assert.equal('foo', result[0]);
 
+// Compile native at
+
+block = compiler.compileBlock("Global nat: 'ajtalk'");
+assert.ok(block.bytecodes);
+assert.equal(5, block.bytecodes.length);
+assert.equal(2, block.values.length);
+assert.equal(ajtalk.ByteCodes.NativeAt, block.bytecodes[4]);
+
+// Compile native at put
+
+block = compiler.compileBlock("Global nat: 'foo' put: 'bar'");
+assert.ok(block.bytecodes);
+assert.equal(7, block.bytecodes.length);
+assert.equal(3, block.values.length);
+assert.equal(ajtalk.ByteCodes.NativeAtPut, block.bytecodes[6]);
+
+// Compile native apply
+
+block = compiler.compileBlock("'foo' napply: 'length'");
+assert.ok(block.bytecodes);
+assert.equal(6, block.bytecodes.length);
+assert.equal(2, block.values.length);
+assert.equal(ajtalk.ByteCodes.NativeApply, block.bytecodes[5]);
+
+// Compile native apply with arguments
+
+block = compiler.compileBlock("'foo' napply: 'slice' with: { 1 }");
+assert.ok(block.bytecodes);
+assert.equal(9, block.bytecodes.length);
+assert.equal(3, block.values.length);
+assert.equal(ajtalk.ByteCodes.NativeApply, block.bytecodes[8]);
+
+// Compile native new
+
+block = compiler.compileBlock("NativeString nnew");
+assert.ok(block.bytecodes);
+assert.equal(4, block.bytecodes.length);
+assert.equal(1, block.values.length);
+assert.equal(ajtalk.ByteCodes.NativeNew, block.bytecodes[3]);
+
 // Evaluate primitive
 
 assert.ok(ajtalk.Primitives);
@@ -684,6 +724,51 @@ block.apply(null, null);
 assert.ok(Smalltalk.Sum);
 assert.equal(55, Smalltalk.Sum);
 
+// Evaluate Global
+
+block = compiler.compileBlock('Global');
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal(global, result);
+
+// Evaluate native at
+
+global.foo = 'bar';
+block = compiler.compileBlock("'foo' nat: 'length'");
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal(3, result);
+
+// Evaluate native at put
+
+block = compiler.compileBlock("Global nat: 'one' put: 1");
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal(1, result);
+assert.equal(1, global.one);
+
+// Evaluate native apply
+
+block = compiler.compileBlock("'foo' napply: 'toUpperCase'");
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal('FOO', result);
+
+// Evaluate native apply with argumens
+
+block = compiler.compileBlock("'foo' napply: 'slice' with: {1}");
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal('oo', result);
+
+// Evaluate native new
+
+Smalltalk.NativeString = String;
+block = compiler.compileBlock("NativeString nnew: {'foo'}");
+result = block.apply(null, null);
+assert.ok(result);
+assert.equal('foo', result);
+
 // New Object
 
 var newobj = cls.new();
@@ -695,6 +780,7 @@ assert.equal(0, newobj.sendMessage("zero"));
 
 // Objects methods
 
+/*
 var p = {};
 
 p.$age = 800;
@@ -729,6 +815,7 @@ assert.equal('4', n.sendMessage('toString'));
 
 assert.ok(Smalltalk.nat_('Global'));
 assert.ok(Smalltalk.nat_('Global').nat_('Number'));
+*/
 
 // Object
 
