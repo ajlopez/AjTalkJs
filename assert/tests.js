@@ -397,6 +397,7 @@ block = compiler.compileBlock("block value");
 
 assert.notEqual(null, block);
 
+assert.equal(6, block.bytecodes.length);
 assert.equal(ajtalk.ByteCodes.GetGlobalVariable, block.bytecodes[0]);
 assert.equal(0, block.bytecodes[1]);
 assert.equal(ajtalk.ByteCodes.GetValue, block.bytecodes[2]);
@@ -659,6 +660,20 @@ assert.equal(ajtalk.ByteCodes.NativePrimitive, block.bytecodes[0]);
 assert.equal(2, block.bytecodes.length);
 result = block.apply();
 assert.equal(42, result);
+
+// Evaluate block with parameter
+
+block = compiler.compileBlock("[:a | ^a + 1]");
+var exeblock = block.apply(null, null);
+result = exeblock.executeWithParameters([1]);
+assert.equal(2, result);
+
+// Evaluate number do block
+
+block = compiler.compileBlock("Sum := 0. 10 do: [:x | Sum := Sum + x]");
+block.apply(null, null);
+assert.ok(Smalltalk.Sum);
+assert.equal(55, Smalltalk.Sum);
 
 // New Object
 
