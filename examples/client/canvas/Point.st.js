@@ -2,7 +2,7 @@ var ajtalk;
 var Smalltalk;
 
 if (typeof(ajtalk) === 'undefined')
-    ajtalk = require('./lib/ajtalk.js');
+    ajtalk = require('ajtalk.js');
 
 if (typeof(Smalltalk) === 'undefined')
     Smalltalk = ajtalk.Smalltalk;
@@ -30,9 +30,11 @@ Smalltalk.Point.defineMethod('angleWith:', function(aPoint)
     ap = aPoint.angle();
     return ap['>='](ar).ifTrue_ifFalse_(function() {
         ap['-'](ar);
+        return self;
     }
     , function() {
         Float.pi()['*'](2)['-'](ar)['+'](ap);
+        return self;
     }
     );
 });
@@ -168,6 +170,7 @@ Smalltalk.Point.defineMethod('<', function(aPoint)
     console.log('<');
     return self.$x['<'](aPoint.x()).and_(function() {
         self.$y['<'](aPoint.y());
+        return self;
     }
     );
 });
@@ -177,6 +180,7 @@ Smalltalk.Point.defineMethod('<=', function(aPoint)
     console.log('<=');
     return self.$x['<='](aPoint.x()).and_(function() {
         self.$y['<='](aPoint.y());
+        return self;
     }
     );
 });
@@ -189,6 +193,7 @@ Smalltalk.Point.defineMethod('=', function(aPoint)
         __context.value = self.$x['='](aPoint.x()).and_(function() {
             self.$y['='](aPoint.y());
             if (__context.return) return __context.value;
+            return self;
         }
         );
         __context.return = true;
@@ -201,6 +206,7 @@ Smalltalk.Point.defineMethod('=', function(aPoint)
     }
     );
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('>', function(aPoint)
 {
@@ -208,6 +214,7 @@ Smalltalk.Point.defineMethod('>', function(aPoint)
     console.log('>');
     return self.$x['>'](aPoint.x()).and_(function() {
         self.$y['>'](aPoint.y());
+        return self;
     }
     );
 });
@@ -217,6 +224,7 @@ Smalltalk.Point.defineMethod('>=', function(aPoint)
     console.log('>=');
     return self.$x['>='](aPoint.x()).and_(function() {
         self.$y['>='](aPoint.y());
+        return self;
     }
     );
 });
@@ -226,6 +234,7 @@ Smalltalk.Point.defineMethod('closeTo:', function(aPoint)
     console.log('closeTo_');
     return self.$x.closeTo_(aPoint.x()).and_(function() {
         self.$y.closeTo_(aPoint.y());
+        return self;
     }
     );
 });
@@ -259,6 +268,7 @@ Smalltalk.Point.defineMethod('adaptToCollection:andSend:', function(rcvr, select
     console.log('adaptToCollection_andSend_');
     return rcvr.collect_(function(element) {
         element.perform_with_(selector, self);
+        return self;
     }
     );
 });
@@ -294,6 +304,7 @@ Smalltalk.Point.defineMethod('asNonFractionalPoint', function()
     self.$x.isFraction().or_(function() {
         self.$y.isFraction();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = self.$x.asFloat()['@'](self.$y.asFloat());
@@ -302,6 +313,7 @@ Smalltalk.Point.defineMethod('asNonFractionalPoint', function()
     }
     );
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('asPoint', function()
 {
@@ -349,6 +361,7 @@ Smalltalk.Point.defineMethod('guarded', function()
     var self = this;
     console.log('guarded');
     self.max_(1['@'](1));
+    return self;
 });
 Smalltalk.Point.defineMethod('scaleTo:', function(anExtent)
 {
@@ -371,10 +384,12 @@ Smalltalk.Point.defineMethod('scaleTo:', function(anExtent)
     return sX['<'](sY).ifTrue_ifFalse_(function() {
         sX['@'](sX.max_(sY['*'](factor)));
         if (__context.return) return __context.value;
+        return self;
     }
     , function() {
         sY.max_(sX['*'](factor))['@'](sY);
         if (__context.return) return __context.value;
+        return self;
     }
     );
 });
@@ -404,14 +419,17 @@ Smalltalk.Point.defineMethod('to:intersects:to:', function(end1, start2, end2)
     start1['='](start2).or_(function() {
         end1['='](end2);
         if (__context.return) return __context.value;
+        return self;
     }
     ).or_(function() {
         start1['='](end2);
         if (__context.return) return __context.value;
+        return self;
     }
     ).or_(function() {
         start2['='](end1);
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = true;
@@ -470,9 +488,11 @@ Smalltalk.Point.defineMethod('bearingToPoint:', function(anotherPoint)
     deltaX.abs()['<'](0.001).ifTrue_(function() {
         __context.value = deltaY['>'](0).ifTrue_ifFalse_(function() {
             180;
+            return self;
         }
         , function() {
             0;
+            return self;
         }
         );
         __context.return = true;
@@ -482,9 +502,11 @@ Smalltalk.Point.defineMethod('bearingToPoint:', function(anotherPoint)
     if (__context.return) return __context.value;
     return deltaX['>='](0).ifTrue_ifFalse_(function() {
         90;
+        return self;
     }
     , function() {
         270;
+        return self;
     }
     )['-'](deltaY['/'](deltaX).arcTan().negated().radiansToDegrees()).rounded();
 });
@@ -537,6 +559,7 @@ Smalltalk.Point.defineMethod('flipBy:centerAt:', function(direction, c)
     if (__context.return) return __context.value;
     self.error_('unrecognizable direction');
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('fourDirections', function()
 {
@@ -684,6 +707,7 @@ Smalltalk.Point.defineMethod('octantOf:', function(otherPoint)
     self.$x['='](otherPoint.x()).and_(function() {
         self.$y['>'](otherPoint.y());
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = 6;
@@ -695,6 +719,7 @@ Smalltalk.Point.defineMethod('octantOf:', function(otherPoint)
     self.$y['='](otherPoint.y()).and_(function() {
         self.$x['<'](otherPoint.x());
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = 8;
@@ -717,6 +742,7 @@ Smalltalk.Point.defineMethod('octantOf:', function(otherPoint)
     }
     );
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('onLineFrom:to:', function(p1, p2)
 {
@@ -733,6 +759,7 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         self.$x['<'](p1.x()['-'](epsilon)).or_(function() {
             self.$x['>'](p2.x()['+'](epsilon));
             if (__context.return) return __context.value;
+            return self;
         }
         ).ifTrue_(function() {
             __context.value = false;
@@ -741,11 +768,13 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     , function() {
         self.$x['<'](p2.x()['-'](epsilon)).or_(function() {
             self.$x['>'](p1.x()['+'](epsilon));
             if (__context.return) return __context.value;
+            return self;
         }
         ).ifTrue_(function() {
             __context.value = false;
@@ -754,6 +783,7 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
@@ -761,6 +791,7 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         self.$y['<'](p1.y()['-'](epsilon)).or_(function() {
             self.$y['>'](p2.y()['+'](epsilon));
             if (__context.return) return __context.value;
+            return self;
         }
         ).ifTrue_(function() {
             __context.value = false;
@@ -769,11 +800,13 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     , function() {
         self.$y['<'](p2.y()['-'](epsilon)).or_(function() {
             self.$y['>'](p1.y()['+'](epsilon));
             if (__context.return) return __context.value;
+            return self;
         }
         ).ifTrue_(function() {
             __context.value = false;
@@ -782,6 +815,7 @@ Smalltalk.Point.defineMethod('onLineFrom:to:within:', function(p1, p2, epsilon)
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
@@ -794,20 +828,26 @@ Smalltalk.Point.defineMethod('quadrantOf:', function(otherPoint)
     return self.$x['<='](otherPoint.x()).ifTrue_ifFalse_(function() {
         self.$y['<'](otherPoint.y()).ifTrue_ifFalse_(function() {
             1;
+            return self;
         }
         , function() {
             4;
+            return self;
         }
         );
+        return self;
     }
     , function() {
         self.$y['<='](otherPoint.y()).ifTrue_ifFalse_(function() {
             2;
+            return self;
         }
         , function() {
             3;
+            return self;
         }
         );
+        return self;
     }
     );
 });
@@ -847,6 +887,7 @@ Smalltalk.Point.defineMethod('rotateBy:centerAt:', function(direction, c)
     if (__context.return) return __context.value;
     self.error_('unrecognizable direction');
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('sign', function()
 {
@@ -860,9 +901,11 @@ Smalltalk.Point.defineMethod('sortsBefore:', function(otherPoint)
     console.log('sortsBefore_');
     return self.$y['='](otherPoint.y()).ifTrue_ifFalse_(function() {
         self.$x['<='](otherPoint.x());
+        return self;
     }
     , function() {
         self.$y['<='](otherPoint.y());
+        return self;
     }
     );
 });
@@ -900,6 +943,7 @@ Smalltalk.Point.defineMethod('degrees', function()
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     , function() {
         tan = self.$y.asFloat()['/'](self.$x.asFloat());
@@ -917,6 +961,7 @@ Smalltalk.Point.defineMethod('degrees', function()
             }
             );
             if (__context.return) return __context.value;
+            return self;
         }
         , function() {
             __context.value = 180['+'](theta.radiansToDegrees());
@@ -925,9 +970,11 @@ Smalltalk.Point.defineMethod('degrees', function()
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('r', function()
 {
@@ -955,6 +1002,7 @@ Smalltalk.Point.defineMethod('theta', function()
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     , function() {
         tan = self.$y.asFloat()['/'](self.$x.asFloat());
@@ -972,6 +1020,7 @@ Smalltalk.Point.defineMethod('theta', function()
             }
             );
             if (__context.return) return __context.value;
+            return self;
         }
         , function() {
             __context.value = 3.14159265358979['+'](theta);
@@ -980,9 +1029,11 @@ Smalltalk.Point.defineMethod('theta', function()
         }
         );
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('printOn:', function(aStream)
 {
@@ -996,15 +1047,18 @@ Smalltalk.Point.defineMethod('printOn:', function(aStream)
     self.$y.notNil().and_(function() {
         self.$y.negative();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         aStream.space();
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
     self.$y.printOn_(aStream);
     if (__context.return) return __context.value;
+    return self;
 });
 Smalltalk.Point.defineMethod('storeOn:', function(aStream)
 {
@@ -1013,6 +1067,7 @@ Smalltalk.Point.defineMethod('storeOn:', function(aStream)
     aStream.nextPut_('(');
     self.printOn_(aStream);
     aStream.nextPut_(')');
+    return self;
 });
 Smalltalk.Point.defineMethod('isSelfEvaluating', function()
 {
@@ -1026,6 +1081,7 @@ Smalltalk.Point.defineMethod('isZero', function()
     console.log('isZero');
     return self.$x.isZero().and_(function() {
         self.$y.isZero();
+        return self;
     }
     );
 });
@@ -1087,6 +1143,7 @@ Smalltalk.Point.defineMethod('rounded', function()
     self.$x.isInteger().and_(function() {
         self.$y.isInteger();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = self;
@@ -1121,6 +1178,7 @@ Smalltalk.Point.defineMethod('truncated', function()
     self.$x.isInteger().and_(function() {
         self.$y.isInteger();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = self;
@@ -1139,6 +1197,7 @@ Smalltalk.Point.defineMethod('ceiling', function()
     self.$x.isInteger().and_(function() {
         self.$y.isInteger();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = self;
@@ -1157,6 +1216,7 @@ Smalltalk.Point.defineMethod('floor', function()
     self.$x.isInteger().and_(function() {
         self.$y.isInteger();
         if (__context.return) return __context.value;
+        return self;
     }
     ).ifTrue_(function() {
         __context.value = self;
@@ -1173,6 +1233,7 @@ Smalltalk.Point.defineMethod('isIntegerPoint', function()
     console.log('isIntegerPoint');
     return self.$x.isInteger().and_(function() {
         self.$y.isInteger();
+        return self;
     }
     );
 });
@@ -1198,6 +1259,7 @@ Smalltalk.Point.defineMethod('bitShiftPoint:', function(bits)
     console.log('bitShiftPoint_');
     self.$x = self.$x.bitShift_(bits);
     self.$y = self.$y.bitShift_(bits);
+    return self;
 });
 Smalltalk.Point.defineMethod('setR:degrees:', function(rho, degrees)
 {
@@ -1207,6 +1269,7 @@ Smalltalk.Point.defineMethod('setR:degrees:', function(rho, degrees)
     radians = degrees.asFloat().degreesToRadians();
     self.$x = rho.asFloat()['*'](radians.cos());
     self.$y = rho.asFloat()['*'](radians.sin());
+    return self;
 });
 Smalltalk.Point.defineMethod('setX:setY:', function(xValue, yValue)
 {
@@ -1214,6 +1277,7 @@ Smalltalk.Point.defineMethod('setX:setY:', function(xValue, yValue)
     console.log('setX_setY_');
     self.$x = xValue;
     self.$y = yValue;
+    return self;
 });
 Smalltalk.Point.defineClassMethod('settingInputWidgetForNode:', function(aSettingNode)
 {
@@ -1241,6 +1305,7 @@ Smalltalk.Point.defineClassMethod('fromUserWithCursor:', function(aCursor)
     aCursor.showWhile_(function() {
         Sensor.waitButton();
         if (__context.return) return __context.value;
+        return self;
     }
     );
     if (__context.return) return __context.value;
