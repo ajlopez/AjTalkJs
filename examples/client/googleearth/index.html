@@ -1,0 +1,44 @@
+<html>
+<head>
+  <title>Google Earth Sample</title>
+  <script type="text/javascript" src="../../../lib/ajtalk.js"></script>
+  <script type="text/javascript" src="Google.js"></script>
+  <script type="text/javascript" src="GoogleEarth.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
+  <script type="text/javascript">
+    var Smalltalk = ajtalk.Smalltalk;
+    Smalltalk.GoogleEarth.initialize();
+    Smalltalk.Google.loadCallback_(init);
+
+    function init() 
+    {
+        Smalltalk.GoogleEarth.createInstance_callback_('map3d', initCB);
+        //google.earth.createInstance('map3d', initCB, failureCB);
+    }
+
+    function initCB(instance) {
+        instance.show();
+      ge = instance.$instance;
+      //ge.getWindow().setVisibility(true);
+
+ge.getLayerRoot().enableLayerById(ge.LAYER_TERRAIN, true);
+
+// Fly to the Grand Canyon
+var la = ge.createLookAt('');
+la.set(36.20839, -112.45803, 0, ge.ALTITUDE_RELATIVE_TO_GROUND, 
+       -30, 40, 10000);
+ge.getView().setAbstractView(la);      
+    }
+
+    function failureCB(errorCode) {
+    }
+
+    google.setOnLoadCallback(init);
+  </script>
+
+</head>
+<body>
+  <div id="map3d" style="height: 400px; width: 600px;"></div>
+</body>
+</html>
+
