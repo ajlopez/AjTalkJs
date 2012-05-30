@@ -1,0 +1,17 @@
+{ "name": "ajtalk"
+, "description": "Smalltalk VM implemented in Javascript, for browser and Node.js"
+, "keywords": [ "smalltalk", "nodejs", "javascript", "browser" ]
+, "version": "0.0.1-alfa"
+, "author": "Angel 'Java' Lopez <webmaster@ajlopez.com> (http://www.ajlopez.com)"
+, "repository": { "type": "git", "url": "git://github.com/ajlopez/AjTalkJs.git" }
+, "main": "./lib/ajtalk.js"
+, "engines": { "node": ">= 0.6.0 && < 0.9.0" }
+, "scripts": {
+    "test": "nodeunit test"
+  }
+, "dependencies": {
+  }
+, "devDependencies": {
+    "nodeunit": ">= 0.7.4"
+  }
+}
