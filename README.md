@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/ajlopez/AjTalkJs.png)](http://travis-ci.org/ajlopez/AjTalkJs)
 # AjTalkJs
 
 Smalltalk bytecode Virtual Machine, written in Javascript. It can compile Smalltalk fileOut. Work in Progress.
