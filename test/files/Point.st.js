@@ -2,7 +2,7 @@ var ajtalk;
 var Smalltalk;
 
 if (typeof(ajtalk) === 'undefined')
-    ajtalk = require('ajtalk.js');
+    ajtalk = require(__dirname + '/../../lib/ajtalk.js');
 
 if (typeof(Smalltalk) === 'undefined')
     Smalltalk = ajtalk.Smalltalk;
