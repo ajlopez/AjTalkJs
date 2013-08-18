@@ -22,6 +22,4 @@ exports['Number methods'] = function(test) {
 	test.equal(2, onehalf.rounded());
 	var minusonehalf = new Number(-1.5);
 	test.equal(-1, minusonehalf.rounded());
-	
-	test.done();
 }

@@ -10,8 +10,6 @@ exports['Parse name'] = function(test) {
 	test.ok(token.isName());
 	test.equal("name", token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse symbol'] = function(test) {
@@ -22,8 +20,6 @@ exports['Parse symbol'] = function(test) {
 	test.ok(token.isSymbol());
 	test.equal("Point", token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse symbol and dot'] = function(test) {
@@ -41,8 +37,6 @@ exports['Parse symbol and dot'] = function(test) {
 	test.equal(".", token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse name and dot'] = function(test) {
@@ -60,8 +54,6 @@ exports['Parse name and dot'] = function(test) {
 	test.equal(".", token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Skip comment'] = function(test) {
@@ -69,8 +61,6 @@ exports['Skip comment'] = function(test) {
 	var token = lexer.nextToken();
 	
 	test.equal(null, token);
-	
-	test.done();
 }
 
 exports['Parse name with comments'] = function(test) {
@@ -81,8 +71,6 @@ exports['Parse name with comments'] = function(test) {
 	test.ok(token.isName());
 	test.equal("name", token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse two names'] = function(test) {
@@ -100,8 +88,6 @@ exports['Parse two names'] = function(test) {
 	test.equal("class", token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse integer number'] = function(test) {
@@ -113,8 +99,6 @@ exports['Parse integer number'] = function(test) {
 	test.equal(123, token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse integer number and dot'] = function(test) {
@@ -132,8 +116,6 @@ exports['Parse integer number and dot'] = function(test) {
 	test.equal('.', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse string'] = function(test) {
@@ -145,8 +127,6 @@ exports['Parse string'] = function(test) {
 	test.equal('foo', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse string with quote'] = function(test) {
@@ -158,8 +138,6 @@ exports['Parse string with quote'] = function(test) {
 	test.equal('foo\'', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse minus and name'] = function(test) {
@@ -177,8 +155,6 @@ exports['Parse minus and name'] = function(test) {
 	test.equal('title', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse keyword'] = function(test) {
@@ -190,8 +166,6 @@ exports['Parse keyword'] = function(test) {
 	test.ok(token.isKeyword());
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse character'] = function(test) {
@@ -203,8 +177,6 @@ exports['Parse character'] = function(test) {
 	test.ok(token.isCharacter());
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse add operator'] = function(test) {
@@ -214,8 +186,6 @@ exports['Parse add operator'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal('^', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse return operator'] = function(test) {
@@ -225,8 +195,6 @@ exports['Parse return operator'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal('^', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse assignment operator'] = function(test) {
@@ -236,8 +204,6 @@ exports['Parse assignment operator'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal(':=', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse less operator'] = function(test) {
@@ -247,8 +213,6 @@ exports['Parse less operator'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal('<', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse less or equal operator'] = function(test) {
@@ -258,8 +222,6 @@ exports['Parse less or equal operator'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal('<=', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse less or equal operator with spaces'] = function(test) {
@@ -269,8 +231,6 @@ exports['Parse less or equal operator with spaces'] = function(test) {
 	test.ok(token.isOperator());
 	test.equal('<=', token.value);
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse assignment'] = function(test) {
@@ -289,8 +249,6 @@ exports['Parse assignment'] = function(test) {
 	test.equal(3, token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse return'] = function(test) {
@@ -305,8 +263,6 @@ exports['Parse return'] = function(test) {
 	test.equal('a', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 
 exports['Parse parameter name'] = function(test) {
@@ -317,7 +273,5 @@ exports['Parse parameter name'] = function(test) {
 	test.equal('k', token.value);
 
 	test.equal(null, lexer.nextToken());
-	
-	test.done();
 }
 

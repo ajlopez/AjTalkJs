@@ -11,8 +11,6 @@ exports['Require Javascript File'] = function(test) {
     test.ok(Smalltalk.Point);
     var point = Smalltalk.Point.basicNew();
     test.ok(point);
-	
-	test.done();
 };
 
 exports['Load st File'] = function(test) {
@@ -21,6 +19,4 @@ exports['Load st File'] = function(test) {
     Smalltalk.Node.loadst_(__dirname + '/files/HtmlHelloPage.st');
 
     test.ok(Smalltalk.HtmlHelloPage);
-	
-	test.done();
 };
