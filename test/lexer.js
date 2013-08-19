@@ -141,3 +141,21 @@ exports['get real'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['skip comment'] = function (test) {
+    var mylexer = lexer.createLexer('"this is a comment"');
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['skip multiline comment'] = function (test) {
+    var mylexer = lexer.createLexer('"this is a\nmultiline\ncomment"');
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['skip two comments'] = function (test) {
+    var mylexer = lexer.createLexer('"this is a comment" "this is another comment"');
+    
+    test.equal(mylexer.nextToken(), null);
+}
