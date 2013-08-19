@@ -11,4 +11,6 @@ exports['get name'] = function (test) {
     test.ok(token);
     test.equal(token.value, "a");
     test.equal(token.type, TokenType.Name);
+    
+    test.equal(mylexer.nextToken(), null);
 }
