@@ -39,3 +39,29 @@ exports['parse and compile string'] = function (test) {
     test.ok(result);
     test.equal(result, "'foo'");
 };
+
+exports['parse and compile name'] = function (test) {
+    var myparser = parser.createParser("a");    
+    
+    var expression = myparser.parse();
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "a");
+};
+
+exports['parse and compile unary message'] = function (test) {
+    var myparser = parser.createParser("a b");    
+    
+    var expression = myparser.parse();
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "a.b()");
+};
