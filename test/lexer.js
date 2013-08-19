@@ -129,3 +129,15 @@ exports['get unclosed string'] = function (test) {
         }
     );
 }
+
+exports['get real'] = function (test) {
+    var mylexer = lexer.createLexer("123.45");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "123.45");
+    test.equal(token.type, TokenType.Real);
+    
+    test.equal(mylexer.nextToken(), null);
+}
