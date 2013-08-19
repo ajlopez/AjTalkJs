@@ -78,3 +78,16 @@ exports['parse and compile unary messages'] = function (test) {
     test.ok(result);
     test.equal(result, "a.b().c().d()");
 };
+
+exports['parse and compile binary messages'] = function (test) {
+    var myparser = parser.createParser("a + c");    
+    
+    var expression = myparser.parse();
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "(a + c)");
+};

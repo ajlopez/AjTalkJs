@@ -159,3 +159,27 @@ exports['skip two comments'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get plus sign'] = function (test) {
+    var mylexer = lexer.createLexer('+');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '+');
+    test.equal(token.type, TokenType.Sign);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['get less or equal sign'] = function (test) {
+    var mylexer = lexer.createLexer('<=');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '<=');
+    test.equal(token.type, TokenType.Sign);
+    
+    test.equal(mylexer.nextToken(), null);
+}
