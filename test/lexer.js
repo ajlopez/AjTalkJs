@@ -14,3 +14,15 @@ exports['get name'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get null when empty string'] = function (test) {
+    var mylexer = lexer.createLexer("");
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['get null when null string'] = function (test) {
+    var mylexer = lexer.createLexer(null);
+    
+    test.equal(mylexer.nextToken(), null);
+}
