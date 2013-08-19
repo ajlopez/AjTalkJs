@@ -94,7 +94,7 @@ exports['get keyword and name'] = function (test) {
 }
 
 exports['get punctuation marks'] = function (test) {
-    var punctuations = "(),.|";
+    var punctuations = "(),.|!";
     var mylexer = lexer.createLexer(punctuations);
     
     for (var k = 0; k < punctuations.length; k++) {    
