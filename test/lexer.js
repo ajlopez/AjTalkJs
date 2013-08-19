@@ -50,3 +50,15 @@ exports['get keyword'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get integer'] = function (test) {
+    var mylexer = lexer.createLexer("123");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "123");
+    test.equal(token.type, TokenType.Integer);
+    
+    test.equal(mylexer.nextToken(), null);
+}
