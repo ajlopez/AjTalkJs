@@ -105,3 +105,27 @@ exports['get punctuation marks'] = function (test) {
         test.equal(token.type, TokenType.Punctuation);
     }
 }
+
+exports['get string'] = function (test) {
+    var mylexer = lexer.createLexer("'foo'");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "foo");
+    test.equal(token.type, TokenType.String);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['get unclosed string'] = function (test) {
+    var mylexer = lexer.createLexer("'foo");
+    
+    test.throws(
+        function() { mylexer.nextToken(); },
+        function(err) {
+            test.ok(err, 'unclosed string');
+            return true;
+        }
+    );
+}
