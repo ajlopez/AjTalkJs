@@ -92,3 +92,16 @@ exports['get keyword and name'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get punctuation marks'] = function (test) {
+    var punctuations = "(),.|";
+    var mylexer = lexer.createLexer(punctuations);
+    
+    for (var k = 0; k < punctuations.length; k++) {    
+        var token = mylexer.nextToken();
+    
+        test.ok(token);
+        test.equal(token.value, punctuations[k]);
+        test.equal(token.type, TokenType.Punctuation);
+    }
+}
