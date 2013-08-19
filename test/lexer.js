@@ -74,3 +74,21 @@ exports['get symbol'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get keyword and name'] = function (test) {
+    var mylexer = lexer.createLexer("with:a");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "with:");
+    test.equal(token.type, TokenType.Keyword);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "a");
+    test.equal(token.type, TokenType.Name);
+    
+    test.equal(mylexer.nextToken(), null);
+}
