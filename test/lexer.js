@@ -26,3 +26,15 @@ exports['get null when null string'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get name with spaces'] = function (test) {
+    var mylexer = lexer.createLexer(" a  ");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "a");
+    test.equal(token.type, TokenType.Name);
+    
+    test.equal(mylexer.nextToken(), null);
+}
