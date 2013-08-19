@@ -38,3 +38,15 @@ exports['get name with spaces'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get keyword'] = function (test) {
+    var mylexer = lexer.createLexer("with:");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "with:");
+    test.equal(token.type, TokenType.Keyword);
+    
+    test.equal(mylexer.nextToken(), null);
+}
