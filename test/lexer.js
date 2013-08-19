@@ -62,3 +62,15 @@ exports['get integer'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get symbol'] = function (test) {
+    var mylexer = lexer.createLexer("#with:with:");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "with:with:");
+    test.equal(token.type, TokenType.Symbol);
+    
+    test.equal(mylexer.nextToken(), null);
+}
