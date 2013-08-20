@@ -79,7 +79,7 @@ exports['parse and compile unary messages'] = function (test) {
     test.equal(result, "a.b().c().d()");
 };
 
-exports['parse and compile binary messages'] = function (test) {
+exports['parse and compile binary message'] = function (test) {
     var myparser = parser.createParser("a + c");    
     
     var expression = myparser.parse();
@@ -90,4 +90,17 @@ exports['parse and compile binary messages'] = function (test) {
     
     test.ok(result);
     test.equal(result, "(a + c)");
+};
+
+exports['parse and compile keyword message'] = function (test) {
+    var myparser = parser.createParser("a add: 1");    
+    
+    var expression = myparser.parse();
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "a.add_(1)");
 };
