@@ -104,3 +104,16 @@ exports['parse and compile keyword message'] = function (test) {
     test.ok(result);
     test.equal(result, "a.add_(1)");
 };
+
+exports['parse and compile two keywords message'] = function (test) {
+    var myparser = parser.createParser("a add: 1 with: 2");    
+    
+    var expression = myparser.parse();
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "a.add_with_(1, 2)");
+};
