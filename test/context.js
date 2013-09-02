@@ -1,13 +1,13 @@
 
 var context = require('../lib/context');
 
-exports['context without local variable'] = function (test) {
+exports['context without instance variable'] = function (test) {
     var mycontext = context.createContext();
-    test.equal(mycontext.isLocal('a'), false);
+    test.equal(mycontext.isInstanceVariable('a'), false);
 }
 
-exports['context with local variable'] = function (test) {
+exports['context with instance variable'] = function (test) {
     var mycontext = context.createContext();
-    mycontext.defineLocal('a');
-    test.equal(mycontext.isLocal('a'), true);
+    mycontext.defineInstanceVariable('a');
+    test.equal(mycontext.isInstanceVariable('a'), true);
 }

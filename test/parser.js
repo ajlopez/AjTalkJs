@@ -1,5 +1,6 @@
 
-var parser = require('../lib/parser');
+var parser = require('../lib/parser'),
+    context = require('../lib/context');
 
 exports['parse and compile integer'] = function (test) {
     var myparser = parser.createParser('123');    
@@ -142,4 +143,20 @@ exports['parse and compile unary and keyword messages'] = function (test) {
     
     test.ok(result);
     test.equal(result, "a.increment().add_with_(b.decrement(), 2)");
+};
+
+exports['parse and compile instance variable name'] = function (test) {
+    var myparser = parser.createParser("a");
+    var mycontext = context.createContext();
+    
+    mycontext.defineInstanceVariable('a');
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, "self.a");
 };
