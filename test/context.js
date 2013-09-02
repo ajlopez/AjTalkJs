@@ -11,3 +11,14 @@ exports['context with instance variable'] = function (test) {
     mycontext.defineInstanceVariable('a');
     test.equal(mycontext.isInstanceVariable('a'), true);
 }
+
+exports['context without local variable'] = function (test) {
+    var mycontext = context.createContext();
+    test.equal(mycontext.isLocalVariable('a'), false);
+}
+
+exports['context with local variable'] = function (test) {
+    var mycontext = context.createContext();
+    mycontext.defineLocalVariable('a');
+    test.equal(mycontext.isLocalVariable('a'), true);
+}
