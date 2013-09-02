@@ -160,3 +160,20 @@ exports['parse and compile instance variable name'] = function (test) {
     test.ok(result);
     test.equal(result, "self.a");
 };
+
+exports['parse local variables'] = function (test) {
+    var myparser = parser.createParser("| a b |");
+    var mycontext = context.createContext();
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.ok(result.indexOf('var a;') >= 0);
+    test.ok(result.indexOf('var b;') >= 0);
+    test.ok(mycontext.isLocalVariable('a'));
+    test.ok(mycontext.isLocalVariable('b'));
+};
