@@ -177,3 +177,17 @@ exports['parse local variables'] = function (test) {
     test.ok(mycontext.isLocalVariable('a'));
     test.ok(mycontext.isLocalVariable('b'));
 };
+
+exports['parse simple assignment'] = function (test) {
+    var myparser = parser.createParser("a := 1");
+    var mycontext = context.createContext();
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, 'a = 1;');
+};
