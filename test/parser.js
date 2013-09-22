@@ -181,6 +181,7 @@ exports['parse local variables'] = function (test) {
 exports['parse simple assignment'] = function (test) {
     var myparser = parser.createParser("a := 1");
     var mycontext = context.createContext();
+    mycontext.defineLocalVariable('a');
     
     var expression = myparser.parse(mycontext);
     
@@ -190,4 +191,18 @@ exports['parse simple assignment'] = function (test) {
     
     test.ok(result);
     test.equal(result, 'a = 1;');
+};
+
+exports['parse global variable'] = function (test) {
+    var myparser = parser.createParser("Transcript");
+    var mycontext = context.createContext();
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, 'Smalltalk.Transcript');
 };
