@@ -158,7 +158,7 @@ exports['parse and compile instance variable name'] = function (test) {
     var result = expression.compile();
     
     test.ok(result);
-    test.equal(result, "self.a");
+    test.equal(result, "self.$a");
 };
 
 exports['parse local variables'] = function (test) {
