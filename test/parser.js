@@ -206,3 +206,17 @@ exports['parse global variable'] = function (test) {
     test.ok(result);
     test.equal(result, 'Smalltalk.Transcript');
 };
+
+exports['parse Smalltalk global variable'] = function (test) {
+    var myparser = parser.createParser("Smalltalk");
+    var mycontext = context.createContext();
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.ok(expression);
+    
+    var result = expression.compile();
+    
+    test.ok(result);
+    test.equal(result, 'Smalltalk');
+};
