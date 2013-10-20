@@ -1,0 +1,1 @@
+var ajtalk = require('../..'),    fs = require('fs');    function executeFile(filename) {    var text = fs.readFileSync(filename).toString();  	var compiler = new ajtalk.Compiler();	var block = compiler.compileBlock(text);	var result = block.apply();};process.argv.forEach(function(val) {    if (val.slice(-3) == ".st")        executeFile(val);});
