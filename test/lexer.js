@@ -183,3 +183,15 @@ exports['get less or equal sign'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get character'] = function (test) {
+    var mylexer = lexer.createLexer('$c');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, 'c');
+    test.equal(token.type, TokenType.Character);
+    
+    test.equal(mylexer.nextToken(), null);
+}
