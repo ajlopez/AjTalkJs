@@ -1,4 +1,678 @@
 
+var ajtalk = (function() {
+
+var lexer = (function() {
+    var TokenType = { Name: 1, Integer: 2, Real: 3, Keyword: 4, Symbol: 5, Punctuation: 6, Sign: 7, Character: 8, Parameter: 9 };
+
+    var punctuations = "(),.|!";
+
+    function Lexer(text) {
+        var length = text ? text.length : 0;
+        var position = 0;
+        
+        this.nextToken = function () {
+            while (position < length) {
+                var ch = text[position];
+                
+                if (isWhiteSpace(ch)) {
+                    position++;
+                    continue;
+                }
+                    
+                if (ch === '"') {
+                    position++;
+                    skipComment();
+                    continue;
+                }
+                
+                break;
+            }
+                
+            if (position >= length)
+                return null;
+                
+            position++;
+            
+            if (isDigit(ch))
+                return nextInteger(ch);
+                
+            if (isPunctuation(ch))
+                return { value: ch, type: TokenType.Punctuation };
+                
+            if (ch === '#')
+                return nextSymbol();
+            
+            if (ch === "'")
+                return nextString();
+                
+            if (ch == "$")
+                return nextCharacter();
+                
+            if (ch == ':' && isLetter(text[position]))
+                return nextParameter();
+            
+            if (isLetter(ch))
+                return nextName(ch);
+            
+            var result = ch;
+            
+            while (position < length && isSign(text[position]))
+                result += text[position++];
+                
+            return { value: result, type: TokenType.Sign };
+        };
+        
+        function skipComment() {
+            while (position < length && text[position] !== '"')
+                position++;
+                
+            position++;
+        }
+        
+        function nextName(ch) {
+            var result = ch;
+            
+            while (position < length && !isWhiteSpace(text[position])) {
+                var ch2 = text[position++];
+                result += ch2;
+                
+                if (ch2 === ':')
+                    break;
+            }
+
+            if (result[result.length - 1] == ':')
+                return { value: result, type: TokenType.Keyword };
+            
+            return { value: result, type: TokenType.Name };
+        }
+        
+        function nextParameter() {
+            var tokname = nextName('');
+            
+            return { value: tokname.value, type: TokenType.Parameter };
+        }
+            
+        function nextCharacter()
+        {
+            var next = text[position++];
+                
+            return { value : next, type: TokenType.Character };
+        }
+        
+        function nextInteger(ch) {
+            var result = ch;
+            
+            while (position < length && isDigit(text[position]))
+                result += text[position++];
+                
+            if (text[position] === '.') {
+                position++;
+                return nextReal(result + '.');
+            }
+                
+            return { value: result, type: TokenType.Integer };
+        }
+        
+        function nextReal(result) {
+            while (position < length && isDigit(text[position]))
+                result += text[position++];
+                
+            return { value: result, type: TokenType.Real };
+        }
+        
+        function nextSymbol() {
+            var result = '';
+            
+            while (position < length && !isWhiteSpace(text[position]))
+                result += text[position++];
+            
+            return { value: result, type: TokenType.Symbol };
+        }
+        
+        function nextString() {
+            var result = '';
+            
+            while (position < length && text[position] !== "'")
+                result += text[position++];
+
+            if (position >= length)
+                throw 'unclosed string';
+
+            position++;
+            
+            return { value: result, type: TokenType.String };
+        }
+    }
+
+    function isPunctuation(ch) {
+        return punctuations.indexOf(ch) >= 0;
+    }
+
+    function isWhiteSpace(ch) {
+        return ch <= ' ';
+    }
+
+    function isSign(ch) {
+        return !isWhiteSpace(ch) && !isPunctuation(ch) && !isDigit(ch) && !isLetter(ch);
+    }
+
+    function isLetter(ch) {
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+    }
+
+    function isDigit(ch) {
+        return ch >= '0' && ch <= '9';
+    }
+
+    function createLexer(text) {
+        return new Lexer(text);
+    }
+
+    return {
+        createLexer: createLexer,
+        TokenType: TokenType
+    }
+})();
+
+if (typeof module !== 'undefined' && module && module.exports)
+    module.exports = lexer;
+
+if (typeof require != 'undefined')
+	var lexer = require('./lexer');
+
+var parser = (function () {
+    var createLexer = lexer.createLexer;
+    var TokenType = lexer.TokenType;
+
+    function ConstantExpression(value) {
+        this.compile = function () {
+            return value;
+        }
+    }
+
+    function VariableExpression(name) {
+        this.compile = function () {
+            return name;
+        }
+    }
+
+    function GlobalVariableExpression(name) {
+        this.compile = function () {
+            if (name === 'Smalltalk')
+                return name;
+                
+            return 'Smalltalk.' + name;
+        }
+    }
+
+    function InstanceVariableExpression(name) {
+        this.compile = function () {
+            return 'self.$' + name;
+        }
+    }
+
+    function AssignExpression(leftexpr, expr) {
+        this.compile = function () {
+            return leftexpr.compile() + ' = ' + expr.compile() + ';';
+        }
+    }
+
+    function LocalVariablesExpression(names) {
+        this.compile = function () {
+            var result = '';
+            
+            names.forEach(function (name) {
+                if (result !== '')
+                    result += ' ';
+                result += 'var ' + name + ';';
+            });
+            
+            return result;
+        }
+    }
+
+    function UnaryMessageExpression(expr, selector) {
+        this.compile = function () {
+            return expr.compile() + "." + selector + "()";
+        }
+    }
+
+    function BinaryMessageExpression(left, selector, right) {
+        this.compile = function () {
+            return "(" + left.compile() + " " + selector + " " + right.compile() + ")";
+        }
+    }
+
+    function KeywordMessageExpression(target, selector, expressions) {
+        this.compile = function () {
+            var name = selector.replace(/:/g, '_');
+            var result = target.compile() + "." + name + "(";
+            
+            for (var k = 0; k < expressions.length; k++) {
+                if (k)
+                    result += ", ";
+                    
+                result += expressions[k].compile();
+            }
+            
+            result += ")";
+            return result;
+        }
+    }
+
+    function Parser(text) {
+        var lexer = createLexer(text);
+        var tokens = [];
+        
+        this.parse = function(context) {
+            var token = nextToken();
+            
+            if (token == null)
+                return null;
+                
+            if (token.type === TokenType.Punctuation && token.value === '|')
+                return parseLocalVariables(context);
+                
+            pushToken(token);
+                
+            var expr = parseTarget(context);
+            
+            if (token.type === TokenType.Name) {
+                var token2 = nextToken();
+                if (token2 && token2.value == ':=' && token2.type === TokenType.Sign)
+                    return new AssignExpression(expr, this.parse());
+                else
+                    pushToken(token2);
+            }
+
+            return parseKeywordMessages(expr, context);
+        }
+        
+        function parseLocalVariables(context)
+        {
+            var names = [];
+            
+            for (var token = nextToken(); token && token.type === TokenType.Name; token = nextToken()) {
+                var name = token.value;
+                context.defineLocalVariable(name);
+                names.push(name);
+            }
+                
+            return new LocalVariablesExpression(names);
+        }
+        
+        function parseTarget(context) {
+            var token = nextToken();
+            
+            if (token.type === TokenType.String)
+                return new ConstantExpression("'" + token.value + "'");
+                
+            if (token.type === TokenType.Name) {
+                if (!context)
+                    return new VariableExpression(token.value);
+                    
+                if (context.isInstanceVariable(token.value))
+                    return new InstanceVariableExpression(token.value);
+                    
+                if (context.isLocalVariable(token.value) || context.isArgumentVariable(token.value))
+                    return new VariableExpression(token.value);
+                    
+                return new GlobalVariableExpression(token.value);
+            }
+                
+            return new ConstantExpression(token.value);
+        }
+        
+        function parseKeywordMessages(expr) {
+            expr = parseBinaryMessages(expr);
+            var selector = '';
+            var exprs = [];
+            
+            for (var token = nextToken(); token && token.type == TokenType.Keyword; token = nextToken()) {
+                selector += token.value;
+                var target = parseTarget();
+                exprs.push(parseBinaryMessages(target));
+            }
+            
+            pushToken(token);
+            
+            if (exprs.length > 0)
+                return new KeywordMessageExpression(expr, selector, exprs);
+            
+            return expr;
+        }
+        
+        function parseBinaryMessages(expr) {
+            expr = parseUnaryMessages(expr);
+            
+            for (var token = nextToken(); token && token.type == TokenType.Sign; token = nextToken()) {
+                var target = parseTarget();
+                var right = parseUnaryMessages(target);
+                
+                expr = new BinaryMessageExpression(expr, token.value, right);
+            }
+            
+            pushToken(token);
+            
+            return expr;
+        }
+        
+        function parseUnaryMessages(expr) {
+            for (var token = nextToken(); token && token.type == TokenType.Name; token = nextToken())
+                expr = new UnaryMessageExpression(expr, token.value);
+                
+            pushToken(token);
+                
+            return expr;
+        }
+        
+        function nextToken() {
+            if (tokens.length)
+                return tokens.pop();
+                
+            return lexer.nextToken();
+        }
+        
+        function pushToken(token) {
+            if (token)
+                tokens.push(token);
+        }
+    }
+
+    function createParser(text) {
+        return new Parser(text);
+    }
+
+    return {
+        createParser: createParser
+    }
+})();
+
+if (typeof module !== 'undefined' && module && module.exports)
+    module.exports = parser;
+var chunkreader = (function() {	// Chunk Reader		function ChunkReader(text)	{		var position = 0;				this.nextChunk = function() {            if (text == null || text.length == 0)                return null;                            text = skipSpaces(text);            			if (text.length == 0)            {                text = null;				return '';            }							var result = '';                        if (text[0] == '!')            {                if (text.length > 1 && text[1] > ' ')                {                    result = '!';                    text = text.slice(1);                }                else                {                    text = text.slice(1);                    return '';                }            }            			var bangpos = text.indexOf("!");						if (bangpos < 0)			{				result += text;				text = null;				return result;			}						var bang2pos = text.indexOf("!!");						if (bang2pos == bangpos) {				while (bangpos >= 0 && bang2pos == bangpos)				{					result += text.slice(0, bangpos+1);					text = text.slice(bangpos + 2);					bangpos = text.indexOf("!");					bang2pos = text.indexOf("!!");				}								if (bangpos < 0)				{					result += text;					text = null;					return result;				}								result += text.slice(0, bangpos);				text = text.slice(bangpos + 1);								return result;			}						result += text.slice(0, bangpos);			text = text.slice(bangpos + 1);						return result;		}	}		ChunkReader.prototype.process = function(compiler) 	{		var chunk = this.nextChunk();		var ismethod = false;				while (chunk != null)		{			var isreader = false;						if (chunk != null && chunk.length > 0 && chunk[0] == '!')			{				chunk = chunk.slice(1);				isreader = true;			}						var result = compiler.compileBlock(chunk);			result = result.apply();						if (isreader)				result.scanFrom(this, true);							chunk = this.nextChunk();		}		}	    function skipSpaces(text)    {        var l = text.length;                for (var k=0; k < l; k++)            if (text[k] > ' ')                break;                        if (k==0)            return text;                    return text.slice(k);    }            function skipNewLines(text)    {        var l = text.length;                for (var k=0; k < l; k++)            if (text[k] >= ' ')                break;                        if (k==0)            return text;                    return text.slice(k);    }    return {        createReader: function (text) { return new ChunkReader(text); }     }})();if (typeof module !== 'undefined' && module && module.exports)    module.exports = chunkreader;
+var machine = (function() {
+    var Smalltalk;
+    
+	var ByteCodes = {
+		GetValue: 0,
+		GetArgument: 1,
+		GetLocal: 2,
+		GetInstanceVariable: 3,
+		GetGlobalVariable: 4,
+		GetSelf: 5,
+		GetNull: 6,
+		GetBlock: 7,
+		
+		SetLocal: 10,
+		SetInstanceVariable: 11,
+		SetGlobalVariable: 12,
+		
+		Add: 20,
+		Subtract: 21,
+		Multiply: 22,
+		Divide: 23,
+		Concatenate: 24,
+		
+		Primitive: 30,
+		NativePrimitive: 31,
+		LastTarget: 32,
+		
+		SendMessage: 40,
+		NewList: 41,
+		Return: 50,
+		
+		// Javascript bytecodes
+		
+		NativeAt: 100,
+		NativeAtPut: 101,
+		NativeApply: 102,
+		NativeNew: 103
+	};
+    	
+	function Block(arity, nlocals)
+	{
+        arity = arity || 0;
+        nlocals = nlocals || 0;
+        
+		this.arity = arity;
+		this.nlocals = nlocals;
+        
+		this.bytecodes = [];
+		this.values = [];
+	};
+	
+	Block.prototype.apply = function(self, args) 
+	{
+		return (new ExecutionBlock(this, self, args)).execute();
+	};
+	
+	Block.prototype.compileByteCode = function(bytecode, param)
+	{
+		this.bytecodes.push(bytecode);
+		if (param != null)
+			this.bytecodes.push(param);
+	};
+	
+	Block.prototype.toFunction = function()
+	{
+		var block = this;
+		var result = function() { return block.apply(this, arguments); }
+		result.method = this;
+		return result;
+	}
+	
+	Block.prototype.addValue = function(value)
+	{
+		var position = this.values.indexOf(value);
+		
+		if (position >= 0)
+			return position;
+			
+		position = this.values.length;
+		
+		this.values.push(value);
+		
+		return position;
+	}
+	
+	function ExecutionBlock(block, self, args)
+	{
+		this.block = block;
+		this.self = self;
+		this.args = args;
+		this.locals = new Array(block.nlocals);
+	}
+	
+	ExecutionBlock.prototype.executeWithParameters = function(parameters)
+	{
+		this.parameters = parameters;
+		return this.execute();
+	}
+	
+	ExecutionBlock.prototype.execute = function()
+	{
+		var ip = 0;
+		var bc = this.block.bytecodes;
+		var l = bc.length;
+		var stack = [];
+		
+		while (ip < l)
+		{
+			var bytecode = bc[ip++];
+			
+			switch(bytecode) {
+				case ByteCodes.GetValue:
+					var nv = bc[ip++];
+					stack.push(this.block.values[nv]);
+					break;
+				case ByteCodes.GetBlock:
+					var nv = bc[ip++];
+					stack.push(new ExecutionBlock(this.block.values[nv], this.self, null));
+					break;
+				case ByteCodes.GetParameter:
+					var np = bc[ip++];
+					stack.push(this.parameters[np]);
+					break;
+				case ByteCodes.GetArgument:
+					var na = bc[ip++];
+					stack.push(this.args[na]);
+					break;
+				case ByteCodes.GetLocal:
+					var nl = bc[ip++];
+					stack.push(this.locals[nl]);
+					break;
+				case ByteCodes.SetLocal:
+					var nl = bc[ip++];
+                    this.locals[nl] = stack.pop();
+					break;
+				case ByteCodes.GetInstanceVariable:
+					var niv = bc[ip++];
+					stack.push(this.self[this.block.values[niv]]);
+					break;
+				case ByteCodes.GetGlobalVariable:
+					nv = bc[ip++];
+					stack.push(Smalltalk[this.block.values[nv]]);
+					break;
+				case ByteCodes.SetInstanceVariable:
+					niv = bc[ip++];
+					this.self[this.block.values[niv]] = stack.pop();
+					break;
+				case ByteCodes.SetGlobalVariable:
+					nv = bc[ip++];
+					Smalltalk[this.block.values[nv]] = stack.pop();
+					break;
+				case ByteCodes.GetSelf:
+					stack.push(this.self);
+					break;
+				case ByteCodes.GetNull:
+					stack.push(null);
+					break;
+				case ByteCodes.LastTarget:
+					stack.push(target);
+					break;
+				case ByteCodes.Concatenate:
+					var op2 = stack.pop();
+					var op1 = stack.pop();
+					stack.push(op1.toString() + op2.toString());
+					break;
+				case ByteCodes.Add:
+					var op2 = stack.pop();
+					var op1 = stack.pop();
+					stack.push(op1 + op2);
+					break;
+				case ByteCodes.Subtract:
+					var op2 = stack.pop();
+					var op1 = stack.pop();
+					stack.push(op1 - op2);
+					break;
+				case ByteCodes.Multiply:
+					var op2 = stack.pop();
+					var op1 = stack.pop();
+					stack.push(op1 * op2);
+					break;
+				case ByteCodes.Divide:
+					var op2 = stack.pop();
+					var op1 = stack.pop();
+					stack.push(op1 / op2);
+					break;
+				case ByteCodes.Return:
+					return stack.pop();
+					break;
+				case ByteCodes.Primitive:
+					var nprim = bc[ip++];
+					return Primitives[nprim](this);
+					break;
+				case ByteCodes.NativePrimitive:
+					var nv = bc[ip++];
+					var natprim = this.block.values[nv];
+					stack.push(eval(natprim));
+					break;
+				case ByteCodes.SendMessage:
+					var arity = bc[ip++];
+					var selector = stack.pop();
+					var args = [];
+					
+					for (var k = 0; k < arity; k++)
+						args.unshift(stack.pop());
+						
+					var target = stack.pop();
+					
+					if (!target)
+						target = Smalltalk.Nil;
+                    
+					stack.push(target[selector].apply(target, args));
+					
+					break;
+				case ByteCodes.NativeNew:
+					var args = stack.pop();
+					var target = stack.pop();
+					
+					stack.push(target.prototype.constructor.apply(target, args));
+					
+					break;
+				case ByteCodes.NativeApply:
+					var args = stack.pop();
+					var selector = stack.pop();						
+					var target = stack.pop();
+					
+					stack.push(target[selector].apply(target, args));
+					
+					break;
+				case ByteCodes.NativeAt:
+					var selector = stack.pop();
+					var target = stack.pop();
+					
+					stack.push(target[selector]);
+					
+					break;
+				case ByteCodes.NativeAtPut:
+					var value = stack.pop();
+					var selector = stack.pop();
+					var target = stack.pop();
+					
+					target[selector] = value;
+					
+					stack.push(value);
+					
+					break;
+				case ByteCodes.NewList:
+					var nitems = bc[ip++];
+					var result = [];
+					
+					for (var k = 0; k < nitems; k++)
+						result.unshift(stack.pop());
+					
+					stack.push(result);
+					
+					break;
+				default:
+					throw "Invalid ByteCode " + bytecode
+					breakl
+			};
+		}
+		
+        // TODO review stack.length > 0
+		if (stack.length > 0)
+			return stack.pop();
+        else
+            return this.self;
+	}
+    
+    function createBlock(arity, nlocals) {
+        return new Block(arity, nlocals);
+    }
+    
+    return {
+        ByteCodes: ByteCodes,
+        createBlock: createBlock,
+        defineSmalltalk: function (st) { Smalltalk = st; }
+    }
+})();
+
+if (typeof module !== 'undefined' && module && module.exports)
+    module.exports = machine;
+
 // New Experimental Implementation
 
 if (typeof require != 'undefined') {
@@ -1343,3 +2017,6 @@ var ajtalk = (function() {
 
 if (typeof module !== 'undefined' && module && module.exports)
     module.exports = ajtalk;
+    return ajtalk;
+
+})();
