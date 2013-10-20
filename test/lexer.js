@@ -195,3 +195,15 @@ exports['get character'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get parameter'] = function (test) {
+    var mylexer = lexer.createLexer(':a');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, 'a');
+    test.equal(token.type, TokenType.Parameter);
+    
+    test.equal(mylexer.nextToken(), null);
+}
