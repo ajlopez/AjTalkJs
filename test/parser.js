@@ -220,3 +220,12 @@ exports['parse Smalltalk global variable'] = function (test) {
     test.ok(result);
     test.equal(result, 'Smalltalk');
 };
+
+exports['parse comment as null'] = function (test) {
+    var myparser = parser.createParser('"this is a comment"');
+    var mycontext = context.createContext();
+    
+    var expression = myparser.parse(mycontext);
+    
+    test.equal(expression, null);
+};
