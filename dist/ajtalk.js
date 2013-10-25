@@ -2,15 +2,22 @@
 var ajtalk = (function() {
 
 var lexer = (function() {
-    var TokenType = { Name: 1, Integer: 2, Real: 3, Keyword: 4, Symbol: 5, Punctuation: 6, Sign: 7, Character: 8, Parameter: 9 };
+    var TokenType = { Name: 1, String: 2, Integer: 3, Real: 4, Keyword: 5, Symbol: 6, Punctuation: 7, Sign: 8, Character: 9, Parameter: 10 };
 
-    var punctuations = "(),.|!";
+    var punctuations = "(),.|![]{};";
 
     function Lexer(text) {
         var length = text ? text.length : 0;
         var position = 0;
+        var lasttoken = null;
         
         this.nextToken = function () {
+            if (lasttoken != null) {
+                var value = lasttoken;
+                lasttoken = null;
+                return value;
+            }
+            
             while (position < length) {
                 var ch = text[position];
                 
@@ -36,9 +43,17 @@ var lexer = (function() {
             if (isDigit(ch))
                 return nextInteger(ch);
                 
+            if (ch === '-' && isDigit(text[position]))
+                return nextInteger(ch);
+                
             if (isPunctuation(ch))
                 return { value: ch, type: TokenType.Punctuation };
                 
+            if (ch === '#' && text[position] === '(') {
+                position++;
+                return { value: '#(', type: TokenType.Punctuation };
+            }
+            
             if (ch === '#')
                 return nextSymbol();
             
@@ -47,6 +62,9 @@ var lexer = (function() {
                 
             if (ch == "$")
                 return nextCharacter();
+                
+            if (ch == "^")
+                return { value: '^', type: TokenType.Sign };
                 
             if (ch == ':' && isLetter(text[position]))
                 return nextParameter();
@@ -62,6 +80,10 @@ var lexer = (function() {
             return { value: result, type: TokenType.Sign };
         };
         
+        this.pushToken = function (token) {
+            lasttoken = token;
+        }
+        
         function skipComment() {
             while (position < length && text[position] !== '"')
                 position++;
@@ -72,7 +94,7 @@ var lexer = (function() {
         function nextName(ch) {
             var result = ch;
             
-            while (position < length && !isWhiteSpace(text[position])) {
+            while (position < length && !isWhiteSpace(text[position]) && !isPunctuation(text[position])) {
                 var ch2 = text[position++];
                 result += ch2;
                 
@@ -105,7 +127,7 @@ var lexer = (function() {
             while (position < length && isDigit(text[position]))
                 result += text[position++];
                 
-            if (text[position] === '.') {
+            if (text[position] === '.' && isDigit(text[position + 1])) {
                 position++;
                 return nextReal(result + '.');
             }
@@ -123,7 +145,7 @@ var lexer = (function() {
         function nextSymbol() {
             var result = '';
             
-            while (position < length && !isWhiteSpace(text[position]))
+            while (position < length && !isWhiteSpace(text[position]) && !isPunctuation(text[position]))
                 result += text[position++];
             
             return { value: result, type: TokenType.Symbol };
@@ -132,12 +154,20 @@ var lexer = (function() {
         function nextString() {
             var result = '';
             
-            while (position < length && text[position] !== "'")
+            while (position < length) {
+                if (text[position] === "'") {
+                    if (text[position + 1] !== "'")
+                        break;
+                        
+                    position++;
+                }
+                        
                 result += text[position++];
+            }
 
-            if (position >= length)
+            if (text[position] != "'")
                 throw 'unclosed string';
-
+                
             position++;
             
             return { value: result, type: TokenType.String };
@@ -679,10 +709,12 @@ if (typeof require != 'undefined') {
 	var fs = require('fs');
     var chunkreader = require('./chunkreader');
     var machine = require('./machine');
+    var lexer = require('./lexer');
 }
 	
 var ByteCodes = machine.ByteCodes;
 var hasjquery = (typeof jQuery != 'undefined');
+var TokenType = lexer.TokenType;
 
 var ajtalk = (function() {
 
@@ -1069,344 +1101,14 @@ var ajtalk = (function() {
 		return result;
 	}
 
-	// Lexer
-	
-    var separators = ['[', ']', ',', '.', '|', '{', '}', '(', ')', ';' ];
-    var terminators = ['[', ']', ',', '.', '|', '{', '}', ')' ];
-	var operators = [':', '=', '==', ':=', '+', '-', '*', '/', '^', '>', '>=', '<', '<=', '@', '|' ];
-	
-	function Lexer(text) 
-	{
-		var position = 0;
-		var length = text.length;
-		var lasttoken = null;
-		
-		this.nextToken = function() 
-		{
-			if (lasttoken != null) {
-				var value = lasttoken;
-				lasttoken = null;
-				return value;
-			}
-		
-			skipSpacesAndComments();
-			
-			var char = nextChar();
-			
-			if (char == null)
-				return null;
-				
-			if (char == '#' && peekChar() == '(')
-			{
-				nextChar();
-				return new Token('#(', TokenType.Separator);
-			}
-				
-			if (char == '#')
-				return nextSymbol();
-			
-			if (isLetter(char))
-				return nextName(char);
-				
-			if (isDigit(char))
-				return nextNumber(char);
-                
-            if (char == '-' && isDigit(peekChar()))
-                return nextNumber(char);
-				
-			if (char == "'")
-				return nextString();
-
-            if (char == "$")
-				return nextCharacter();
-                
-            if (char == ':' && isLetter(peekChar()))
-                return nextParameter();
-				
-			if (separators.indexOf(char) >= 0)
-				return new Token(char, TokenType.Separator);
-                
-            return nextOperator(char);
-		}
-		
-		this.pushToken = function(token) 
-		{
-			lasttoken = token;
-		}
-		
-		function nextOperator(char)
-		{
-            if (char == '^')
-                return new Token(char, TokenType.Operator);
-                
-            var operator = char;
-			var next = nextChar();
-			
-			while (next != null && isSign(next))
-			{
-				var operator = operator + next;
-                next = nextChar();
-			}
-            
-            if (next != null)
-                position--;
-			
-			return new Token(operator, TokenType.Operator);
-		}
-		
-		function nextOperator(char)
-		{
-            if (char == '^')
-                return new Token(char, TokenType.Operator);
-                
-            var operator = char;
-			var next = nextChar();
-			
-			while (next != null && isSign(next))
-			{
-				var operator = operator + next;
-                next = nextChar();
-			}
-            
-            if (next != null)
-                position--;
-			
-			return new Token(operator, TokenType.Operator);
-		}
-		
-		function nextCharacter(char)
-		{
-			var next = nextChar();
-            
-            if (next == null)
-                throw "A character was expected";
-                
-            return new Token(next, TokenType.Character);
-		}
-		
-		function nextChar()
-		{
-			if (position > length)
-				return null;
-				
-			return text[position++];
-		}
-		
-		function peekChar()
-		{
-			if (position > length)
-				return null;
-				
-			return text[position];
-		}
-		
-		function skipSpacesAndComments()
-		{
-			while (position < length) {
-				while (position < length && (text[position] <= ' ' || text.charCodeAt(position) > 65000))
-					position++;
-					
-				if (position < length && text[position] == '"') 
-				{
-					position++;
-					
-					while (position < length && text[position] != '"')
-						position++;
-						
-					if (position < length)
-						position++;
-						
-					continue;
-				}
-
-				return;
-			}
-		}
-		
-		function nextName(char)
-		{
-			var name = char;
-			
-			while ((char = nextChar()) != null && (isLetter(char) || isDigit(char)) || char === ":") 
-			{
-				name += char;
-				
-				if (char == ':')
-					break;
-			}
-			
-			if (char == ':')
-				return new Token(name, TokenType.Keyword);
-				
-			if (char != null)
-				position--;						
-				
-			return new Token(name, TokenType.Name);
-		}
-
-		// TODO review terminator characters
-		function nextSymbol()
-		{
-			var symbol = '';
-			
-			while ((char = nextChar()) != null && char > ' ' && terminators.indexOf(char) < 0) 
-			{
-				symbol += char;
-			}
-							
-			if (char != null)
-				position--;
-				
-			return new Token(symbol, TokenType.Symbol);
-		}
-
-		function nextParameter()
-		{
-            var tokname = nextName('');
-
-            
-            return new Token(tokname.value, TokenType.Parameter);
-		}
-		
-		function nextString()
-		{
-			var string = '';
-			
-			while ((char = nextChar()) != null)
-			{
-				if (char == "'" && peekChar() == "'")
-				{
-					nextChar();
-					string += char;
-					continue;
-				}
-				
-				if (char == "'")
-					break;
-				
-				string += char;
-			}
-				
-			return new Token(string, TokenType.String);
-		}
-		
-		function nextNumber(char)
-		{
-			var number = char;
-			
-			while ((char = nextChar()) != null && isDigit(char))
-				number += char;
-				
-			if (char == '.') 
-			{
-				var next = nextChar();
-				position--;
-				
-				if (next != null && isDigit(next)) 
-				{
-					return nextFloatNumber(number+'.');
-				}
-			}
-				
-			if (char != null)
-				position--;
-				
-			return new Token(parseInt(number), TokenType.Number);
-		}
-		
-		function nextFloatNumber(number)
-		{
-			var char;
-			
-			while ((char = nextChar()) != null && isDigit(char))
-				number += char;
-				
-			if (char != null)
-				position--;
-				
-			return new Token(parseFloat(number), TokenType.Number);
-		}
-		
-		function isLetter(char)
-		{
-			if (char >= 'a' && char <= 'z')
-				return true;
-				
-			if (char >= 'A' && char <= 'Z')
-				return true;
-				
-			return false;
-		}
-		
-		function isDigit(char)
-		{
-			if (char >= '0' && char <= '9')
-				return true;
-				
-			return false;
-		}
-        
-        function isSpace(char)
-        {
-            if (char <= ' ')
-                return true;
-                
-            return false;
-        }
-    
-        function isSign(char)
-        {
-            return !isLetter(char) && !isDigit(char) && !isSpace(char);
-        }
-	}
-	
-    function skipSpaces(text)
-    {
-        var l = text.length;
-        
-        for (var k=0; k < l; k++)
-            if (text[k] > ' ')
-                break;
-                
-        if (k==0)
-            return text;
-            
-        return text.slice(k);
+    function isBinaryOperator(token) {
+        return (token.type == TokenType.Sign && token.value[0] != ':') || (token.type == TokenType.Punctuation && (token.value==',' || token.value=='|'));    
     }
-        
-    function skipNewLines(text)
-    {
-        var l = text.length;
-        
-        for (var k=0; k < l; k++)
-            if (text[k] >= ' ')
-                break;
-                
-        if (k==0)
-            return text;
-            
-        return text.slice(k);
+
+    function isNumber(token) {
+        return token.type === TokenType.Integer || token.type === TokenType.Real;
     }
-        
-	function Token(value, type)
-	{
-		this.value = value;
-		this.type = type;
-		
-		this.isName = function() { return this.type == TokenType.Name; };
-		this.isNumber = function() { return this.type == TokenType.Number; };
-		this.isString = function() { return this.type == TokenType.String; };
-		this.isOperator = function() { return this.type == TokenType.Operator || this.isBinaryOperator(); };
-		this.isSeparator = function() { return this.type == TokenType.Separator; };
-		this.isKeyword = function() { return this.type == TokenType.Keyword; };
-		this.isSymbol = function() { return this.type == TokenType.Symbol; };
-		this.isParameter = function() { return this.type == TokenType.Parameter; };
-		this.isCharacter = function() { return this.type == TokenType.Character; };
-		this.isBinaryOperator = function() { return (this.type == TokenType.Operator && this.value[0] != ':') || (this.type == TokenType.Separator && (this.value==',' || this.value=='|')); };
-	}
-	
-	var TokenType = { Name: 0, Number:1, String:2, Operator:3, Separator:4, Keyword:5, Symbol:6, Character:7, Parameter:8 };
-	
+       
 	function Compiler()
 	{
 	}
@@ -1414,24 +1116,26 @@ var ajtalk = (function() {
 	Compiler.prototype.compileBlock = function(text) 
 	{
 		var block = machine.createBlock(0, 0);
-		var lexer = new Lexer(text);
+		var mylexer = lexer.createLexer(text);
 		
 		if (this.log)
-			lexer.log = true;
+			mylexer.log = true;
 		
-		this.compileExpressions(block, lexer);
+		this.compileExpressions(block, mylexer);
 		
 		return block;
 	};
 	
 	Compiler.prototype.compileMethod = function(text, klass)
 	{
-		var lexer = new Lexer(text);
-		var token = lexer.nextToken();
+		var mylexer = lexer.createLexer(text);
+		var token = mylexer.nextToken();
+        
 		if (token == null)
 			return null;
-		lexer.pushToken(token);
-		var signature = this.compileMethodSignature(lexer);		
+            
+		mylexer.pushToken(token);
+		var signature = this.compileMethodSignature(mylexer);		
 		
 		var method = machine.createBlock(signature.argnames.length, 0);
 		method.klass = klass;
@@ -1440,7 +1144,7 @@ var ajtalk = (function() {
 		method.code = text;		
 		method.name = signature.name;
 		
-		this.compileExpressions(method, lexer);
+		this.compileExpressions(method, mylexer);
 		
 		return method;
 	};
@@ -1458,7 +1162,7 @@ var ajtalk = (function() {
 		if (token == null)
 			throw "Method code expected";
 			
-		if (token.isName())
+		if (token.type == TokenType.Name)
 		{
 			signature.name = token.value;
 			compileLocalNames(lexer, signature);
@@ -1466,23 +1170,23 @@ var ajtalk = (function() {
 		}
 				
 		// TODO isBinaryOperator?
-		if (token.isOperator())
+		if (token.type === TokenType.Sign || (token.type === TokenType.Punctuation && token.value === '|'))
 		{
 			signature.name = token.value;
 			token = lexer.nextToken();
-			if (token == null || !token.isName())
+			if (token == null || token.type !== TokenType.Name)
 				throw "Argument name expected";
 			signature.argnames.push(token.value);
 			compileLocalNames(lexer, signature);
 			return signature;
 		}
 		
-		while (token != null && token.isKeyword())
+		while (token != null && token.type == TokenType.Keyword)
 		{
 			var keyword = token.value;
 			signature.name += keyword;
 			token = lexer.nextToken();
-			if (token == null || !token.isName())
+			if (token == null || token.type !== TokenType.Name)
 				throw "Argument name expected";
 			signature.argnames.push(token.value);
 			token = lexer.nextToken();
@@ -1503,7 +1207,7 @@ var ajtalk = (function() {
 		if (token == null)
 			return;
 			
-		if (!token.isSeparator() || token.value != '|')
+		if (token.type !== TokenType.Punctuation || token.value != '|')
 		{
 			lexer.pushToken(token);
 			return;
@@ -1511,13 +1215,13 @@ var ajtalk = (function() {
 		
 		token = lexer.nextToken();
 		
-		while (token != null && token.isName())
+		while (token != null && token.type == TokenType.Name)
 		{
 			signature.localnames.push(token.value);
 			token = lexer.nextToken();
 		}
 		
-		if (!token.isSeparator() || token.value != '|')
+		if (token.type !== TokenType.Punctuation || token.value != '|')
 			throw "Expected '|'";
 	}
 
@@ -1538,7 +1242,7 @@ var ajtalk = (function() {
 		
 		var nexprs = 0;
         
-        while (isblock && token != null && token.isParameter())
+        while (isblock && token != null && token.type === TokenType.Parameter)
         {
             if (block.parameternames == null)
                 block.parameternames = [];
@@ -1548,25 +1252,25 @@ var ajtalk = (function() {
         }
         
         if (isblock && block.parameternames != null && block.parameternames.length > 0)
-            if (!token.isSeparator() || token.value != '|')
+            if (token.type !== TokenType.Punctuation || token.value != '|')
                 throw "Expected '|'";
             else
                 token = lexer.nextToken();
 				
-		if (isblock && token != null && token.isSeparator() && token.value == '|')
+		if (isblock && token != null && token.type === TokenType.Punctuation && token.value == '|')
 		{
 			if (!block.localnames)
 				block.localnames = [];
 				
 			token = lexer.nextToken();
 			
-			while (token != null && token.isName())
+			while (token != null && token.type === TokenType.Name)
 			{
 				block.localnames.push(token.value);
 				token = lexer.nextToken();
 			}
 			
-			if (token == null || !token.isSeparator() || token.value != '|')
+			if (token == null || token.type !== TokenType.Punctuation || token.value !== '|')
 				throw "Expected '|'";
 				
 			token = lexer.nextToken();
@@ -1574,21 +1278,21 @@ var ajtalk = (function() {
 		
 		while (token != null) 
 		{
-			if (token.isSeparator() && token.value == '.')
+			if (token.type == TokenType.Punctuation && token.value == '.')
 			{
 				token = lexer.nextToken();
 				continue;
 			}
 			
-			if (islist && token.isSeparator() && token.value == '}')
+			if (islist && token.type === TokenType.Punctuation && token.value == '}')
 				return nexprs;
 				
-			if (isblock && token.isSeparator() && token.value == ']')
+			if (isblock && token.type === TokenType.Punctuation && token.value == ']')
 			{
 				return nexprs;
 			}
 				
-			if (token.isSeparator() && token.value == ';')
+			if (token.type === TokenType.Punctuation && token.value == ';')
 			{
 				this.target = true;
 				token = lexer.nextToken();
@@ -1613,7 +1317,7 @@ var ajtalk = (function() {
 		
 		var token = lexer.nextToken();
 		
-		if (token == null || !token.isKeyword()) 
+		if (token == null || token.type !== TokenType.Keyword) 
 		{
 			if (token != null)
 				lexer.pushToken(token);
@@ -1624,7 +1328,7 @@ var ajtalk = (function() {
 		var selector = '';
 		var arity = 0;
 		
-		while (token != null && token.isKeyword())
+		while (token != null && token.type === TokenType.Keyword)
 		{
 			selector += token.value;
 			arity++;
@@ -1667,9 +1371,9 @@ var ajtalk = (function() {
 		
 		var token = lexer.nextToken();
 		
-		while (token != null && (token.isBinaryOperator() || (token.isNumber() && token.value < 0)))
+		while (token != null && (isBinaryOperator(token) || (isNumber(token) && token.value < 0)))
 		{			
-			if (token.isBinaryOperator())
+			if (isBinaryOperator(token))
 				this.compileUnaryExpression(block, lexer);
 
 			switch (token.value) 
@@ -1690,7 +1394,7 @@ var ajtalk = (function() {
 					block.compileByteCode(ByteCodes.Concatenate);
 					break;
 				default:
-					if (token.isNumber())
+					if (isNumber(token))
 					{
 						position = block.addValue(-token.value);
 						block.compileByteCode(ByteCodes.GetValue, position);
@@ -1717,7 +1421,7 @@ var ajtalk = (function() {
 		
 		var token = lexer.nextToken();
 		
-		while (token != null && token.isName())
+		while (token != null && token.type === TokenType.Name)
 		{
 			switch (token.value)
 			{
@@ -1753,7 +1457,7 @@ var ajtalk = (function() {
 		if (token == null)
 			return;
 			
-		if (token.isName()) 
+		if (token.type === TokenType.Name) 
 		{
             if (token.value == "self")
             {
@@ -1822,7 +1526,7 @@ var ajtalk = (function() {
 			
 			token = lexer.nextToken();
 			
-			if (isargument || token == null || !token.isOperator() || token.value != ':=')
+			if (isargument || token == null || token.type !== TokenType.Sign || token.value != ':=')
 			{
 				lexer.pushToken(token);
 
@@ -1852,16 +1556,16 @@ var ajtalk = (function() {
 			return;
 		}
 		
-		if (token.isSeparator() && token.value == '(')
+		if (token.type === TokenType.Punctuation && token.value == '(')
 		{
 			this.compileExpression(block, lexer);
 			token = lexer.nextToken();
-			if (token == null || !token.isSeparator() || token.value != ')')
+			if (token == null || token.type !== TokenType.Punctuation || token.value !== ')')
 				throw "Expected ')'";
 			return;
 		}
 		
-		if (token.isSeparator() && token.value == '{')
+		if (token.type == TokenType.Punctuation && token.value == '{')
 		{
 			var nexprs = this.compileExpressions(block, lexer, true);
 			block.compileByteCode(ByteCodes.NewList, nexprs);
@@ -1870,7 +1574,7 @@ var ajtalk = (function() {
 
         // TODO review access of instance variables
         // TODO review arity, nlocals use
-		if (token.isSeparator() && token.value == '[')
+		if (token.type === TokenType.Punctuation && token.value == '[')
 		{
             var blk = machine.createBlock(0, 0);
             blk.argnames = block.argnames;
@@ -1886,57 +1590,57 @@ var ajtalk = (function() {
 		}
 		
 		// Constant Array
-		if (token.isSeparator() && token.value == '#(')
+		if (token.type === TokenType.Punctuation && token.value == '#(')
 		{
 			this.compileConstantArray(block, lexer);
 			return;
 		}
 		
 		// TODO review symbol treatment
-		if (token.isString() || token.isNumber() || token.isSymbol() || token.isCharacter())
+		if (token.type === TokenType.String || isNumber(token) || token.type === TokenType.Symbol || token.type === TokenType.Character)
 		{
 			var position = block.addValue(token.value);
 			block.compileByteCode(ByteCodes.GetValue, position);
 			return;
 		}
 		
-		if (token.isOperator() && token.value == '^')
+		if (token.type === TokenType.Sign && token.value == '^')
 		{
 			this.compileExpression(block, lexer);
 			block.compileByteCode(ByteCodes.Return);
 			return;
 		}
 		
-		if (token.isOperator() && token.value == '<')
+		if (token.type == TokenType.Sign && token.value == '<')
 		{
 			token = lexer.nextToken();
 			
-			if (!token.isKeyword() || token.value != 'primitive:')
+			if (token.type !== TokenType.Keyword || token.value != 'primitive:')
 				throw "Invalid term " + token.value;
 				
 			token = lexer.nextToken();
 			
-			if (token.isString())
+			if (token.type === TokenType.String)
 			{
 				block.compileByteCode(ByteCodes.NativePrimitive, block.addValue(token.value));
 
 				token = lexer.nextToken();
 				
-				if (token.isKeyword() && token.value == 'module:')
+				if (token.type === TokenType.Keyword && token.value == 'module:')
 				{
 					token = lexer.nextToken();
-					if (token == null || !token.isString())
+					if (token == null || token.type !== TokenType.String)
 						throw "Invalid primitive";
 					token = lexer.nextToken();
 				}
 				
-				if (!token.isOperator() || token.value != '>')
+				if (token.type !== TokenType.Sign || token.value != '>')
 					throw "Invalid primitive " + token.value;
 					
 				return;
 			}
 			
-			if (!token.isNumber() || token.value % 1 != 0)
+			if (token.type != TokenType.Integer)
 				throw "Invalid term " + token.value;
 				
 			block.compileByteCode(ByteCodes.Primitive, parseInt(token.value));
@@ -1950,9 +1654,9 @@ var ajtalk = (function() {
 	{
 		var nelements = 0;
 		
-		for (var token = lexer.nextToken(); token != null && (!token.isSeparator() || token.value !=')'); token = lexer.nextToken())
+		for (var token = lexer.nextToken(); token != null && (token.type !== TokenType.Punctuation || token.value !=')'); token = lexer.nextToken())
 		{
-			if (token.isSeparator() && token.value == '(')
+			if (token.type === TokenType.Punctuation && token.value == '(')
 				this.compileConstantArray(block,lexer);
 			else {
 				var position = block.addValue(token.value);
@@ -1968,7 +1672,7 @@ var ajtalk = (function() {
 	Compiler.prototype.compileName = function(lexer)
 	{
 		var token = lexer.nextToken();
-		if (token == null || !token.isName())
+		if (token == null || token.type !== TokenType.Name)
 			throw "Name expected";
 		return token.value;
 	}
@@ -1976,10 +1680,7 @@ var ajtalk = (function() {
 	Smalltalk.Object.compileClassMethod_("new ^self basicNew.");
 	
     var exports = { };
-    
-	exports.Lexer = Lexer;
-	exports.Compiler = Compiler;
-	
+	exports.Compiler = Compiler;	
 	exports.Smalltalk = Smalltalk;
 	
 	if (fs)
