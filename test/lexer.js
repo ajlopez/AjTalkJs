@@ -336,3 +336,21 @@ exports['get parameter'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+exports['get return name'] = function (test) {
+    var mylexer = lexer.createLexer('^a');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '^');
+    test.equal(token.type, TokenType.Sign);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, 'a');
+    test.equal(token.type, TokenType.Name);
+    
+    test.equal(mylexer.nextToken(), null);
+}
