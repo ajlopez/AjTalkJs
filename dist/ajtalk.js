@@ -2020,3 +2020,18 @@ if (typeof module !== 'undefined' && module && module.exports)
     return ajtalk;
 
 })();
+
+
+// http://coffeescript.org/documentation/docs/browser.html
+
+function runScripts() {
+    var scripts = window.document.getElementsByTagName('script');
+    
+    for (var i = 0; i < scripts.length; i++) {
+        var script = scripts[i];
+        if (script.type != 'text/smalltalk')
+            continue;
+            
+        jpyscript.execute(script.innerHTML, true);
+    }
+	
