@@ -33,6 +33,24 @@ exports['get two names'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get name and punctuation'] = function (test) {
+    var mylexer = lexer.createLexer("name)");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "name");
+    test.equal(token.type, TokenType.Name);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, ")");
+    test.equal(token.type, TokenType.Punctuation);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get null when empty string'] = function (test) {
     var mylexer = lexer.createLexer("");
     
@@ -169,6 +187,19 @@ exports['get punctuation marks'] = function (test) {
         test.equal(token.value, punctuations[k]);
         test.equal(token.type, TokenType.Punctuation);
     }
+}
+
+exports['get begin dynamic array as punctuation'] = function (test) {
+    var punctuations = "#(";
+    var mylexer = lexer.createLexer(punctuations);
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '#(');
+    test.equal(token.type, TokenType.Punctuation);
+    
+    test.equal(mylexer.nextToken(), null);
 }
 
 exports['get string'] = function (test) {
@@ -354,3 +385,5 @@ exports['get return name'] = function (test) {
     
     test.equal(mylexer.nextToken(), null);
 }
+
+
