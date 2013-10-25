@@ -93,6 +93,24 @@ exports['get integer'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get integer and point'] = function (test) {
+    var mylexer = lexer.createLexer("123.");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "123");
+    test.equal(token.type, TokenType.Integer);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, ".");
+    test.equal(token.type, TokenType.Punctuation);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get symbol'] = function (test) {
     var mylexer = lexer.createLexer("#with:with:");
     
