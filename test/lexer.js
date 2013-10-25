@@ -195,6 +195,17 @@ exports['get unclosed string'] = function (test) {
     );
 }
 
+exports['get string with quote'] = function(test) {
+	var mylexer = lexer.createLexer("'foo\'\''");
+	var token = mylexer.nextToken();
+
+	test.notEqual(token, null);
+	test.equal(token.type, TokenType.String);
+	test.equal(token.value, 'foo\'');
+
+	test.equal(mylexer.nextToken(), null);
+}
+
 exports['get real'] = function (test) {
     var mylexer = lexer.createLexer("123.45");
     
