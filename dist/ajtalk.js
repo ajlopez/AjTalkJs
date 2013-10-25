@@ -2026,12 +2026,19 @@ if (typeof module !== 'undefined' && module && module.exports)
 
 function runScripts() {
     var scripts = window.document.getElementsByTagName('script');
+	var compiler = new ajtalk.Compiler();
     
     for (var i = 0; i < scripts.length; i++) {
         var script = scripts[i];
         if (script.type != 'text/smalltalk')
             continue;
-            
-        jpyscript.execute(script.innerHTML, true);
+        
+        var block = compiler.compileBlock(script.innerHTML);
+        var result = block.apply();
     }
-	
+}
+
+if (window.addEventListener)
+    window.addEventListener('DOMContentLoaded', runScripts, false);
+else
+    window.attachEvent('onload', runScripts);
