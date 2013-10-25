@@ -15,6 +15,24 @@ exports['get name'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get two names'] = function (test) {
+    var mylexer = lexer.createLexer("self class");
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "self");
+    test.equal(token.type, TokenType.Name);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "class");
+    test.equal(token.type, TokenType.Name);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get null when empty string'] = function (test) {
     var mylexer = lexer.createLexer("");
     
