@@ -7,15 +7,14 @@
 
 function runScripts() {
     var scripts = window.document.getElementsByTagName('script');
-	var compiler = new ajtalk.Compiler();
     
     for (var i = 0; i < scripts.length; i++) {
         var script = scripts[i];
+
         if (script.type != 'text/smalltalk')
             continue;
         
-        var block = compiler.compileBlock(script.innerHTML);
-        var result = block.apply();
+        var result = ajtalk.execute(script.innerHTML);
     }
 }
 

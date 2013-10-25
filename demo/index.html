@@ -5,9 +5,7 @@
  function doInput()
  {
 	var text = document.getElementById("inputField").value;
-	var compiler = new ajtalk.Compiler();
-	var block = compiler.compileBlock(text);
-	var result = block.apply();
+	var result = ajtalk.execute(text);
 	if (result == null)
 		return;
 	document.getElementById("outputField").innerHTML += result + "\r\n";
