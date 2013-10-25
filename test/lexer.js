@@ -75,6 +75,23 @@ exports['get symbol'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get symbol and dot'] = function(test) {
+	var mylexer = lexer.createLexer("#Point.");
+	var token = mylexer.nextToken();
+
+	test.notEqual(null, token);
+    test.equal(token.type, TokenType.Symbol);
+	test.equal("Point", token.value);
+
+	token = mylexer.nextToken();
+
+	test.notEqual(null, token);
+	test.equal(token.type, TokenType.Punctuation);
+	test.equal(".", token.value);
+
+	test.equal(null, mylexer.nextToken());
+}
+
 exports['get keyword and name'] = function (test) {
     var mylexer = lexer.createLexer("with:a");
     
