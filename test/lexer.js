@@ -218,6 +218,23 @@ exports['get real'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get minus and name'] = function(test) {
+	var mylexer = lexer.createLexer("-title");
+	var token = mylexer.nextToken();
+
+	test.notEqual(token, null);
+	test.equal(token.type, TokenType.Sign);
+	test.equal(token.value, '-');
+
+	token = mylexer.nextToken();
+
+	test.notEqual(token, null);
+	test.equal(token.type, TokenType.Name);
+	test.equal(token.value, 'title');
+
+	test.equal(null, mylexer.nextToken());
+}
+
 exports['skip comment'] = function (test) {
     var mylexer = lexer.createLexer('"this is a comment"');
     
