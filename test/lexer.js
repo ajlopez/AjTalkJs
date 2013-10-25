@@ -202,6 +202,30 @@ exports['get begin dynamic array as punctuation'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get return empty dynamic array'] = function (test) {
+    var punctuations = "^#()";
+    var mylexer = lexer.createLexer(punctuations);
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '^');
+    test.equal(token.type, TokenType.Sign);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '#(');
+    test.equal(token.type, TokenType.Punctuation);
+    
+    token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, ')');
+    test.equal(token.type, TokenType.Punctuation);
+    
+    test.equal(mylexer.nextToken(), null);
+}
 exports['get string'] = function (test) {
     var mylexer = lexer.createLexer("'foo'");
     
