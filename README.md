@@ -6,34 +6,16 @@ See my other project (in C#): https://github.com/ajlopez/AjTalk
 
 Blog posts about AjTalk implementations: http://ajlopez.wordpress.com/category/ajtalk
 
-## Simple Assert Tests
-
-I wrote simple test using node built-in assert module
+## Development
 
 ```
-node tests\tests
+git clone git://github.com/ajlopez/AjTalkJs.git
+cd AjTalkJs
+npm install
+npm test
 ```
 
-In Windows, you have a command file:
+## Samples
 
-```
-tests.cmd
-```
-
-## NodeUnit Tests
-
-Install NodeUnit using npm from project folder
-
-```
-npm install nodeunit
-```
-
-Then run all tests in test folder
-
-```
-nodeunit test
-```
-
-(In Windows, there is a nodeunit.cmd that calls the nodeunit script)
-
+TBD
 
