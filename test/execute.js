@@ -68,3 +68,10 @@ exports['block as native function'] = function (test) {
     test.equal(typeof result, 'function');
     test.equal(result(1), 2);
 }
+
+exports['evaluate Smalltalk'] = function (test) {
+    var result = ajtalk.execute("Smalltalk");
+    
+    test.ok(result);
+    test.strictEqual(result, ajtalk.Smalltalk);
+}
