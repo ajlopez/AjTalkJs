@@ -60,3 +60,11 @@ exports['create native object using native new'] = function (test) {
     test.equal(result.__proto__, Object.prototype);
     test.equal(Object.keys(result).length, 0);
 }
+
+exports['block as native function'] = function (test) {
+    var result = ajtalk.execute("[:a | a + 1 ] toFunction");
+    
+    test.ok(result);
+    test.equal(typeof result, 'function');
+    test.equal(result(1), 2);
+}
