@@ -51,3 +51,12 @@ exports['create native object'] = function (test) {
     test.equal(result.__proto__, Object.prototype);
     test.equal(Object.keys(result).length, 0);
 }
+
+exports['create native object using native new'] = function (test) {
+    var result = ajtalk.execute("NativeObject nnew: { }");
+    
+    test.ok(result);
+    test.equal(typeof result, 'object');
+    test.equal(result.__proto__, Object.prototype);
+    test.equal(Object.keys(result).length, 0);
+}
