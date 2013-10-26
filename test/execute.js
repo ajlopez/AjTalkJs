@@ -42,3 +42,12 @@ exports['evaluate native method'] = function (test) {
     test.ok(result);
     test.equal(result, 'FOO');
 }
+
+exports['create native object'] = function (test) {
+    var result = ajtalk.execute("NativeObject new");
+    
+    test.ok(result);
+    test.equal(typeof result, 'object');
+    test.equal(result.__proto__, Object.prototype);
+    test.equal(Object.keys(result).length, 0);
+}
