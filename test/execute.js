@@ -134,3 +134,31 @@ exports['evaluate ifFalse: with true'] = function (test) {
     
     test.strictEqual(result, null);
 }
+
+exports['evaluate ifTrue:ifFalse:'] = function (test) {
+    var result = ajtalk.execute("1 = 1 ifTrue: [ 1 ] ifFalse: [0]");
+    
+    test.ok(result);
+    test.equal(result, 1);
+}
+
+exports['evaluate ifTrue:ifFalse: with false'] = function (test) {
+    var result = ajtalk.execute("1 = 2 ifTrue: [ 1 ] ifFalse: [2]");
+    
+    test.ok(result);
+    test.equal(result, 2);
+}
+
+exports['evaluate ifFalse:IfTrue:'] = function (test) {
+    var result = ajtalk.execute("1 = 2 ifFalse: [ 1 ] ifTrue: [2]");
+    
+    test.ok(result);
+    test.equal(result, 1);
+}
+
+exports['evaluate ifFalse:IfTrue with true'] = function (test) {
+    var result = ajtalk.execute("1 = 1 ifFalse: [ 1 ] ifTrue: [2]");
+    
+    test.ok(result);
+    test.equal(result, 2);
+}
