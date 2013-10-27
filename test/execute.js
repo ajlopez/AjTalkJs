@@ -90,6 +90,25 @@ exports['evaluate equal'] = function (test) {
     test.strictEqual(result, true);
 }
 
+exports['evaluate equal as false'] = function (test) {
+    var result = ajtalk.execute("1 = 2");
+    
+    test.strictEqual(result, false);
+}
+
+exports['evaluate not equal'] = function (test) {
+    var result = ajtalk.execute("1 ~= 2");
+    
+    test.ok(result);
+    test.strictEqual(result, true);
+}
+
+exports['evaluate not equal as false'] = function (test) {
+    var result = ajtalk.execute("1 ~= 1");
+    
+    test.strictEqual(result, false);
+}
+
 exports['evaluate nil'] = function (test) {
     var result = ajtalk.execute("nil");
     
