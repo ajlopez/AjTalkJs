@@ -1,0 +1,1 @@
+var ajtalk = require('ajtalk');ajtalk.load('AjUnit.st');
