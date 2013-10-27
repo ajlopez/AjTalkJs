@@ -181,3 +181,54 @@ exports['evaluate ifFalse:IfTrue with true'] = function (test) {
     test.ok(result);
     test.equal(result, 2);
 }
+
+exports['evaluate strict comparison'] = function (test) {
+    var result = ajtalk.execute("1 == 1");
+    
+    test.ok(result);
+    test.strictEqual(result, true);
+}
+
+exports['evaluate less comparison'] = function (test) {
+    var result = ajtalk.execute("1 < 2");
+    
+    test.ok(result);
+    test.equal(result, true);
+    
+    result = ajtalk.execute("1 < 1");
+    
+    test.strictEqual(result, false);
+}
+
+exports['evaluate greater comparison'] = function (test) {
+    var result = ajtalk.execute("'b' > 'a'");
+    
+    test.ok(result);
+    test.equal(result, true);
+    
+    result = ajtalk.execute("1 > 2");
+    
+    test.strictEqual(result, false);
+}
+
+exports['evaluate less or equal comparison'] = function (test) {
+    var result = ajtalk.execute("1 <= 2");
+    
+    test.ok(result);
+    test.equal(result, true);
+    
+    result = ajtalk.execute("1 <= 0");
+    
+    test.strictEqual(result, false);
+}
+
+exports['evaluate greater or equal comparison'] = function (test) {
+    var result = ajtalk.execute("'b' >= 'a'");
+    
+    test.ok(result);
+    test.equal(result, true);
+    
+    result = ajtalk.execute("1 >= 2");
+    
+    test.strictEqual(result, false);
+}
