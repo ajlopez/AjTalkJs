@@ -232,3 +232,16 @@ exports['evaluate greater or equal comparison'] = function (test) {
     
     test.strictEqual(result, false);
 }
+
+exports['raise error using signal'] = function (test) {
+    test.throws(
+        function () {
+            ajtalk.execute("Error signal: 'we have a problem'");
+        },
+        function (err) {
+            if (err instanceof Error && err.message === 'we have a problem')
+                return true;
+        }
+    );
+}
+
