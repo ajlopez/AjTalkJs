@@ -2,15 +2,13 @@
 var ajtalk = require('..'),
     path = require('path');
 
-exports['load SimplePoint'] = function (test) {
-    ajtalk.load(path.join(__dirname, 'files',  'SimplePoint.st'));
-    
+ajtalk.load(path.join(__dirname, 'files',  'SimplePoint.st'));
+
+exports['load SimplePoint'] = function (test) {    
     test.ok(ajtalk.Smalltalk.SimplePoint);
 }
 
 exports['create SimplePoint'] = function (test) {
-    ajtalk.load(path.join(__dirname, 'files',  'SimplePoint.st'));
-    
     var result = ajtalk.execute('SimplePoint new');
     
     test.ok(result);

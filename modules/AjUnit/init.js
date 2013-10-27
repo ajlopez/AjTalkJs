@@ -1,1 +1,1 @@
-var ajtalk = require('ajtalk');ajtalk.load('AjUnit.st');
+var ajtalk = require('ajtalk'),    path = require('path');ajtalk.load(path.join(__dirname, 'AjUnit.st'));
