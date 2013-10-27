@@ -69,6 +69,13 @@ exports['block as native function'] = function (test) {
     test.equal(result(1), 2);
 }
 
+exports['evaluate native function using value'] = function (test) {
+    var result = ajtalk.execute("foo := [ 3 ] toFunction. foo value");
+    
+    test.ok(result);
+    test.equal(result, 3);
+}
+
 exports['evaluate Smalltalk'] = function (test) {
     var result = ajtalk.execute("Smalltalk");
     
