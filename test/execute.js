@@ -82,3 +82,36 @@ exports['evaluate Smalltalk'] = function (test) {
     test.ok(result);
     test.strictEqual(result, ajtalk.Smalltalk);
 }
+
+exports['evaluate equal'] = function (test) {
+    var result = ajtalk.execute("1 = 1");
+    
+    test.ok(result);
+    test.strictEqual(result, true);
+}
+
+exports['evaluate nil'] = function (test) {
+    var result = ajtalk.execute("nil");
+    
+    test.strictEqual(result, null);
+}
+
+exports['evaluate true'] = function (test) {
+    var result = ajtalk.execute("true");
+    
+    test.ok(result);
+    test.strictEqual(result, true);
+}
+
+exports['evaluate false'] = function (test) {
+    var result = ajtalk.execute("false");
+    
+    test.strictEqual(result, false);
+}
+
+exports['evaluate ifTrue:'] = function (test) {
+    var result = ajtalk.execute("true ifTrue: [ 1 ]");
+    
+    test.ok(result);
+    test.equal(result, 1);
+}
