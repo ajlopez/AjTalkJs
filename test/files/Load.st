@@ -1,0 +1,2 @@
+
+Smalltalk load: 'HtmlHelloPage.st'.
