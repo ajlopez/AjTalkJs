@@ -19,3 +19,11 @@ npm test
 
 TBD
 
+## Versions
+
+- 0.0.1: Published and tagged.
+
+Master has the current development code.
+
+
+
