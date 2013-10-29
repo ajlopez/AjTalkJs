@@ -1,0 +1,8 @@
+{
+  "name": "ajtalkjs-remote-samples",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "simplemessages": "0.0.4"
+  }
+}

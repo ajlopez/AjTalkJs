@@ -1,0 +1,1 @@
+Smalltalk load: 'RemoteClient.st'.Smalltalk load: 'Console.st'.console := Console new.client := RemoteClient host: 'localhost' port: 3000 do: [ console write: 'Connected' ].client on: 'data' do: [ :message | console write: message ].
