@@ -15,7 +15,7 @@ node run ServerProgram.st
 
 ## Run Client
 
-At command line, run:
+At another terminal, run:
 ```
 node run ClientProgram.st
 ```
