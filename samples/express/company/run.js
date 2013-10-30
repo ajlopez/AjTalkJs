@@ -12,6 +12,6 @@ function executeFile(filename) {
 
 process.argv.forEach(function(val) {
     if (val.slice(-3) == ".st")
-        executeFile(val);
+        ajtalk.load(val);
 });
 
