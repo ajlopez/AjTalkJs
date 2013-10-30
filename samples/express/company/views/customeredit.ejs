@@ -1,0 +1,22 @@
+<% layout('layout') -%>
+<div class="row btn-group">
+<a class="btn btn-info" href="/customers">Customers</a>
+<a class="btn btn-info" href="/customers/<%= item._id %>">View Customer</a>
+</div>
+<div class='row'>
+<form method="post">
+    <table class="table-striped table-bordered">
+        <tr>
+            <td>Name</td>
+            <td><input type="text" name="name" value="<%= item.name %>"/></td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td><input type="text" name="address" value="<%= item.address %>"/></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input class="btn btn-primary" type="submit" value="Update" /></td>
+        </tr>
+    </table>
+</form>
+</div>

@@ -1,0 +1,21 @@
+<% layout('layout') -%>
+
+<div class="row btn-group">
+<a class="btn btn-primary" href="/customers/new">New Customer...</a>
+</div>
+<div class="row">
+<table class="table-striped table-bordered">
+    <tr>
+        <th>&nbsp;</th>
+        <th>Name</th>
+        <th>Address</th>
+    </tr>
+<% items.forEach(function (item) { %>
+    <tr>
+        <td><a href="/customers/<%= item._id %>">View...</a></td>
+        <td><%= item.name %></td>
+        <td><%= item.address %></td>
+    </tr>
+<% }); %>
+</table>
+</div>

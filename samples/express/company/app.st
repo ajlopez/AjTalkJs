@@ -37,7 +37,24 @@ index := [ :request :response |
     response napply: 'render' with: { 'index'. model }
 ] toFunction.  
 
+customerlist := [ :request :response |
+    | model |
+    model := NativeObject new.
+    model nat: 'title' put:'Customers'.
+    model nat: 'items' put: NativeArray new.
+    response napply: 'render' with: { 'customerlist'. model }
+] toFunction.  
+
+customernew := [ :request :response |
+    | model |
+    model := NativeObject new.
+    model nat: 'title' put:'New Customer'.
+    response napply: 'render' with: { 'customernew'. model }
+] toFunction.  
+
 app napply: 'get' with: { '/'. index }.
+app napply: 'get' with: { '/customers'. customerlist }.
+app napply: 'get' with: { '/customers/new'. customernew }.
 
 server := http napply: 'createServer' with: { app }.
 server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] toFunction }.
