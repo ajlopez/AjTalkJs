@@ -1,0 +1,1 @@
+Object subclass: #Repository	instanceVariableNames: 'items'	classVariableNames: ''	poolDictionaries: ''	category: 'Repository'!"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!Repository class	instanceVariableNames: ''!!Repository methodsFor: 'initialization' stamp: 'ajlopez 10/30/2013 08:50'!initialize    super initialize.    items := NativeArray new.! !
