@@ -61,6 +61,33 @@ exports['create native object using native new'] = function (test) {
     test.equal(Object.keys(result).length, 0);
 }
 
+exports['create native array'] = function (test) {
+    var result = ajtalk.execute("NativeArray new");
+    
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 0);
+}
+
+exports['create native array using native new'] = function (test) {
+    var result = ajtalk.execute("NativeArray nnew");
+    
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 0);
+}
+
+exports['create native array using native new with arguments'] = function (test) {
+    var result = ajtalk.execute("NativeArray nnew: { 1. 2. 3 }");
+    
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 3);
+    test.equal(result[0], 1);
+    test.equal(result[1], 2);
+    test.equal(result[2], 3);
+}
+
 exports['block as native function'] = function (test) {
     var result = ajtalk.execute("[:a | a + 1 ] toFunction");
     
