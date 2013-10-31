@@ -69,6 +69,15 @@ customerinsert := [ :request :response |
     index value: request with: response.
 ] toFunction.
 
+customerview := [ :request :response |
+    | model customer |
+    customer := customerrepo getById: ((request nat: 'params') nat: 'id').
+    model := NativeObject new.
+    model nat: 'title' put: ' Customer'.
+    model nat: 'item' put: customer.
+    response napply: 'render' with: { 'customerview'. model }
+] toFunction.
+
 supplierlist := [ :request :response |
     | model |
     model := NativeObject new.
@@ -90,6 +99,7 @@ app napply: 'get' with: { '/'. index }.
 app napply: 'get' with: { '/customers'. customerlist }.
 app napply: 'get' with: { '/customers/new'. customernew }.
 app napply: 'post' with: { '/customers/new'. customerinsert }.
+app napply: 'get' with: { '/customers/:id'. customerview }.
 app napply: 'get' with: { '/suppliers'. supplierlist }.
 app napply: 'get' with: { '/suppliers/new'. suppliernew }.
 
