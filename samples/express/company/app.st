@@ -4,6 +4,11 @@
 express := Smalltalk require: 'express'.
 http := Smalltalk require: 'http'.
 ejslocals := Smalltalk require: 'ejs-locals'.
+
+"Load"
+
+Smalltalk load: 'Repository.st'.
+
 console := Global nat: 'console'.
 
 app := express value.
@@ -37,11 +42,14 @@ index := [ :request :response |
     response napply: 'render' with: { 'index'. model }
 ] toFunction.  
 
+customerrepo := Repository new.
+supplierrepo := Repository new.
+
 customerlist := [ :request :response |
     | model |
     model := NativeObject new.
     model nat: 'title' put:'Customers'.
-    model nat: 'items' put: NativeArray new.
+    model nat: 'items' put: customerrepo getItems.
     response napply: 'render' with: { 'customerlist'. model }
 ] toFunction.  
 
@@ -50,11 +58,40 @@ customernew := [ :request :response |
     model := NativeObject new.
     model nat: 'title' put:'New Customer'.
     response napply: 'render' with: { 'customernew'. model }
+] toFunction.
+
+customerinsert := [ :request :response |
+    | customer |
+    customer := NativeObject new.
+    customer nat: 'name' put: (request napply: 'param' with: { 'name' }).
+    customer nat: 'address' put: (request napply: 'param' with: { 'address' }).
+    customerrepo add: customer.
+    index value: request with: response.
+] toFunction.
+
+supplierlist := [ :request :response |
+    | model |
+    model := NativeObject new.
+    model nat: 'title' put:'Suppliers'.
+    model nat: 'items' put: supplierrepo getItems.
+    response napply: 'render' with: { 'supplierlist'. model }
 ] toFunction.  
+
+suppliernew := [ :request :response |
+    | model |
+    model := NativeObject new.
+    model nat: 'title' put:'New Supplier'.
+    response napply: 'render' with: { 'suppliernew'. model }
+] toFunction.  
+
+"Routing"
 
 app napply: 'get' with: { '/'. index }.
 app napply: 'get' with: { '/customers'. customerlist }.
 app napply: 'get' with: { '/customers/new'. customernew }.
+app napply: 'post' with: { '/customers/new'. customerinsert }.
+app napply: 'get' with: { '/suppliers'. supplierlist }.
+app napply: 'get' with: { '/suppliers/new'. suppliernew }.
 
 server := http napply: 'createServer' with: { app }.
 server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] toFunction }.
