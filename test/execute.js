@@ -1,5 +1,6 @@
 
-var ajtalk = require('..');
+var ajtalk = require('..'),
+    path = require('path');
 
 exports['evaluate number'] = function (test) {
     var result = ajtalk.execute('1');
@@ -272,3 +273,13 @@ exports['raise error using signal'] = function (test) {
     );
 }
 
+exports['native do on native object'] = function (test) {
+    var filename = path.join(__dirname, 'files', 'NativeDo.st');
+    ajtalk.load(filename);
+    var result = ajtalk.Smalltalk.result;
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 2);
+    test.equal(result[0], 'Adam');
+    test.equal(result[1], 800);
+}
