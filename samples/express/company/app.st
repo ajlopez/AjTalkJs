@@ -93,6 +93,24 @@ suppliernew := [ :request :response |
     response napply: 'render' with: { 'suppliernew'. model }
 ] toFunction.  
 
+supplierinsert := [ :request :response |
+    | supplier |
+    supplier := NativeObject new.
+    supplier nat: 'name' put: (request napply: 'param' with: { 'name' }).
+    supplier nat: 'address' put: (request napply: 'param' with: { 'address' }).
+    supplierrepo add: supplier.
+    index value: request with: response.
+] toFunction.
+
+supplierview := [ :request :response |
+    | model supplier |
+    supplier := supplierrepo getById: ((request nat: 'params') nat: 'id').
+    model := NativeObject new.
+    model nat: 'title' put: ' supplier'.
+    model nat: 'item' put: supplier.
+    response napply: 'render' with: { 'supplierview'. model }
+] toFunction.
+
 "Routing"
 
 app napply: 'get' with: { '/'. index }.
@@ -102,6 +120,8 @@ app napply: 'post' with: { '/customers/new'. customerinsert }.
 app napply: 'get' with: { '/customers/:id'. customerview }.
 app napply: 'get' with: { '/suppliers'. supplierlist }.
 app napply: 'get' with: { '/suppliers/new'. suppliernew }.
+app napply: 'post' with: { '/suppliers/new'. supplierinsert }.
+app napply: 'get' with: { '/suppliers/:id'. supplierview }.
 
 server := http napply: 'createServer' with: { app }.
 server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] toFunction }.
