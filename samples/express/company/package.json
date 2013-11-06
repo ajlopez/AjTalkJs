@@ -1,0 +1,11 @@
+{
+  "name": "ajtalkjs-express-company-sample",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "node run RepositoryTests.js"
+  },
+  "devDependencies": {
+    "ajtalkjs-ajunit": "0.0.1"
+  }
+}

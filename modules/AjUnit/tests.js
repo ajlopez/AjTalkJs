@@ -2,7 +2,7 @@
 var ajtalk = require('../..'),
     assert = require('assert');
 
-ajtalk.load('AjUnit.st');
+ajtalk.load('Init.st');
 
 assert.ok(ajtalk.Smalltalk.AjUnit);
 

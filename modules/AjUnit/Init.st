@@ -1,0 +1,3 @@
+
+Smalltalk load: 'AjUnit.st'.
+
