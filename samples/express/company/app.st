@@ -38,7 +38,7 @@ app napply: 'use' with: { express napply: 'static' with: { './public' } }.
 index := [ :request :response |
     | model |
     model := NativeObject new.
-    model nat: 'title' put:'Bootstrap Sample'.
+    model nat: 'title' put:'My Company Sample'.
     response napply: 'render' with: { 'index'. model }
 ] toFunction.  
 

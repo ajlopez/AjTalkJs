@@ -2,13 +2,9 @@
 "Module dependencies"
 
 console := Global nat: 'console'.
-console napply: 'log' with: { 'express 0' }.
 express := Smalltalk require: 'express'.
-console napply: 'log' with: { 'express 1' }.
 http := Smalltalk require: 'http'.
 ejslocals := Smalltalk require: 'ejs-locals'.
-
-console napply: 'log' with: { 'express 1' }.
  
 app := express value.
 
