@@ -283,3 +283,17 @@ exports['native do on native object'] = function (test) {
     test.equal(result[0], 'Adam');
     test.equal(result[1], 800);
 }
+
+exports['yourself'] = function (test) {
+    test.equal(ajtalk.execute('1 + 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 - 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 * 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 / 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 = 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 ~= 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 < 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 <= 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 > 2; yourself'), 1);
+    test.equal(ajtalk.execute('1 >= 2; yourself'), 1);
+    test.equal(ajtalk.execute('a := 1. a + 1; yourself'), 1);
+}
