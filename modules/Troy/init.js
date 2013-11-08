@@ -1,0 +1,1 @@
+var ajtalk = require('ajtalk'),    path = require('path');ajtalk.load(path.join(__dirname, 'Init.st'));
