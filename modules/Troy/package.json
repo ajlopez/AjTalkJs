@@ -2,7 +2,7 @@
   "name": "ajtalkjs-troy"
 , "description": "Troy Web Framework in Smalltalk"
 , "keywords": [ "smalltalk", "nodejs", "javascript", "web", "framework" ]
-, "version": "0.0.1"
+, "version": "0.0.1alpha"
 , "author": "Angel 'Java' Lopez <webmaster@ajlopez.com> (http://www.ajlopez.com)"
 , "repository": { "type": "git", "url": "git://github.com/ajlopez/AjTalkJs.git" }
 , "main": "./init.js"
