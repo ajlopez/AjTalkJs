@@ -70,6 +70,17 @@ exports['create native array'] = function (test) {
     test.equal(result.length, 0);
 }
 
+exports['create native array with initial size'] = function (test) {
+    var result = ajtalk.execute("NativeArray new: 3");
+    
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 3);
+    test.equal(result[0], null);
+    test.equal(result[1], null);
+    test.equal(result[2], null);
+}
+
 exports['create native array using native new'] = function (test) {
     var result = ajtalk.execute("NativeArray nnew");
     
