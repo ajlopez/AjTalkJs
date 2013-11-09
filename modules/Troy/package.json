@@ -11,6 +11,5 @@
     "test": "node run Tests.st"
   }
 , "devDependencies": {
-    "ajtalkjs-ajunit": "0.0.1"
   }
 }
