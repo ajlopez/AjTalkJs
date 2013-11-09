@@ -25,5 +25,9 @@ TBD
 
 Master has the current development code.
 
+## References
+
+- [Collections](http://www.inf.ufsc.br/poo/smalltalk/ibm/tutorial/chap7.html)
+
 
 
