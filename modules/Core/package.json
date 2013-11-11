@@ -1,0 +1,15 @@
+{
+  "name": "ajtalkjs-core"
+, "description": "Core classes for AjTalkJs"
+, "keywords": [ "smalltalk", "nodejs", "javascript" ]
+, "version": "0.0.1alpha"
+, "author": "Angel 'Java' Lopez <webmaster@ajlopez.com> (http://www.ajlopez.com)"
+, "repository": { "type": "git", "url": "git://github.com/ajlopez/AjTalkJs.git" }
+, "main": "./init.js"
+, "engines": { "node": ">= 0.6.0 && < 0.11.0" }
+, "scripts": {
+    "test": "node run Tests.st"
+  }
+, "devDependencies": {
+  }
+}
