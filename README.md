@@ -21,13 +21,14 @@ TBD
 
 ## Versions
 
-- 0.0.1: Published and tagged.
+- 0.0.1: Published and tagged
+- 0.0.2: Under development in master
 
 Master has the current development code.
 
 ## References
 
 - [Collections](http://www.inf.ufsc.br/poo/smalltalk/ibm/tutorial/chap7.html)
-
+- [Message Chains](http://blog.3plus4.org/2007/08/30/message-chains/)
 
 

@@ -5,14 +5,14 @@
 , "author": "Angel 'Java' Lopez <webmaster@ajlopez.com> (http://www.ajlopez.com)"
 , "repository": { "type": "git", "url": "git://github.com/ajlopez/AjTalkJs.git" }
 , "main": "./lib/ajtalk.js"
-, "engines": { "node": ">= 0.6.0 && < 0.9.0" }
+, "engines": { "node": ">= 0.6.0 && < 0.13.0" }
 , "scripts": {
     "test": "simpleunit test"
   }
 , "dependencies": {
   }
 , "devDependencies": {
-    "simpleunit": "0.0.4",
+    "simpleunit": "0.0.5",
     "ajtalkjs-ajunit": "*"
   }
 }
