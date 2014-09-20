@@ -12,7 +12,7 @@
 , "dependencies": {
   }
 , "devDependencies": {
-    "simpleunit": "0.0.5",
+    "simpleunit": "0.0.6",
     "ajtalkjs-ajunit": "*"
   }
 }
