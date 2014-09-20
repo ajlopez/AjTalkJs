@@ -101,7 +101,7 @@ exports['create native array using native new with arguments'] = function (test)
 }
 
 exports['block as native function'] = function (test) {
-    var result = ajtalk.execute("[:a | a + 1 ] toFunction");
+    var result = ajtalk.execute("[:a | a + 1 ] asFunction");
     
     test.ok(result);
     test.equal(typeof result, 'function');
@@ -109,7 +109,7 @@ exports['block as native function'] = function (test) {
 }
 
 exports['evaluate native function using value'] = function (test) {
-    var result = ajtalk.execute("foo := [ 3 ] toFunction. foo value");
+    var result = ajtalk.execute("foo := [ 3 ] asFunction. foo value");
     
     test.ok(result);
     test.equal(result, 3);
