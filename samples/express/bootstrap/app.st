@@ -35,10 +35,10 @@ index := [ :request :response |
     model := NativeObject new.
     model nat: 'title' put:'Bootstrap Sample'.
     response napply: 'render' with: { 'index'. model }
-] toFunction.  
+] asFunction.  
 
 app napply: 'get' with: { '/'. index }.
 
 server := http napply: 'createServer' with: { app }.
-server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] toFunction }.
+server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] asFunction }.
 

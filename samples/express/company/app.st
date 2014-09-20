@@ -40,7 +40,7 @@ index := [ :request :response |
     model := NativeObject new.
     model nat: 'title' put:'My Company Sample'.
     response napply: 'render' with: { 'index'. model }
-] toFunction.  
+] asFunction.  
 
 customerrepo := Repository new.
 supplierrepo := Repository new.
@@ -51,14 +51,14 @@ customerlist := [ :request :response |
     model nat: 'title' put:'Customers'.
     model nat: 'items' put: customerrepo getItems.
     response napply: 'render' with: { 'customerlist'. model }
-] toFunction.  
+] asFunction.  
 
 customernew := [ :request :response |
     | model |
     model := NativeObject new.
     model nat: 'title' put:'New Customer'.
     response napply: 'render' with: { 'customernew'. model }
-] toFunction.
+] asFunction.
 
 customerinsert := [ :request :response |
     | customer |
@@ -67,7 +67,7 @@ customerinsert := [ :request :response |
     customer nat: 'address' put: (request napply: 'param' with: { 'address' }).
     customerrepo add: customer.
     index value: request with: response.
-] toFunction.
+] asFunction.
 
 customerview := [ :request :response |
     | model customer |
@@ -76,7 +76,7 @@ customerview := [ :request :response |
     model nat: 'title' put: ' Customer'.
     model nat: 'item' put: customer.
     response napply: 'render' with: { 'customerview'. model }
-] toFunction.
+] asFunction.
 
 supplierlist := [ :request :response |
     | model |
@@ -84,14 +84,14 @@ supplierlist := [ :request :response |
     model nat: 'title' put:'Suppliers'.
     model nat: 'items' put: supplierrepo getItems.
     response napply: 'render' with: { 'supplierlist'. model }
-] toFunction.  
+] asFunction.  
 
 suppliernew := [ :request :response |
     | model |
     model := NativeObject new.
     model nat: 'title' put:'New Supplier'.
     response napply: 'render' with: { 'suppliernew'. model }
-] toFunction.  
+] asFunction.  
 
 supplierinsert := [ :request :response |
     | supplier |
@@ -100,7 +100,7 @@ supplierinsert := [ :request :response |
     supplier nat: 'address' put: (request napply: 'param' with: { 'address' }).
     supplierrepo add: supplier.
     index value: request with: response.
-] toFunction.
+] asFunction.
 
 supplierview := [ :request :response |
     | model supplier |
@@ -109,7 +109,7 @@ supplierview := [ :request :response |
     model nat: 'title' put: ' supplier'.
     model nat: 'item' put: supplier.
     response napply: 'render' with: { 'supplierview'. model }
-] toFunction.
+] asFunction.
 
 "Routing"
 
@@ -124,5 +124,5 @@ app napply: 'post' with: { '/suppliers/new'. supplierinsert }.
 app napply: 'get' with: { '/suppliers/:id'. supplierview }.
 
 server := http napply: 'createServer' with: { app }.
-server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] toFunction }.
+server napply: 'listen' with: { 3000. [ console napply: 'log' with: { 'Express server listening on port 3000' } ] asFunction }.
 
