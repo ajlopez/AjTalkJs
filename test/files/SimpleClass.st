@@ -16,6 +16,6 @@ SimpleClass subclass: #SimpleSubclass
 	category: 'Tests'!
 
 !SimpleSubclass methodsFor: 'acesss' stamp: 'ajlopez 10/27/2013 20:06'!
-one
-    ^super one.
+two
+    ^super one + 1.
 ! !    

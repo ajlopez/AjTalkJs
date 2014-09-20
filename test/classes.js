@@ -26,3 +26,19 @@ exports['load SimpleClass'] = function (test) {
     test.ok(ajtalk.Smalltalk.SimpleSubclass);
 }
 
+exports['create and invoke SimpleClass'] = function (test) {
+    ajtalk.load(path.join(__dirname, 'files',  'SimpleClass.st'));
+    var result = ajtalk.execute('SimpleClass new one');
+    test.ok(result);
+    test.strictEqual(result, 1);
+}
+
+exports['create and invoke SimpleSubclass'] = function (test) {
+    ajtalk.load(path.join(__dirname, 'files',  'SimpleClass.st'));
+    var result = ajtalk.execute('SimpleSubclass new two');
+    test.ok(result);
+    test.strictEqual(result, 2);
+}
+
+
+

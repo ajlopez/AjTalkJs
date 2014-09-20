@@ -10,6 +10,13 @@ exports['Load relative file'] = function (test) {
     test.ok(ajtalk.Smalltalk.HtmlHelloPage);
 }
 
+exports['Load relative file with super'] = function (test) {
+    var filename = path.join(__dirname, 'files', 'SimpleClass.st');
+    ajtalk.load(filename);
+    
+    test.ok(ajtalk.Smalltalk.HtmlHelloPage);
+}
+
 exports['Load Squeak Object'] = function(test) {
 	ajtalk.load(__dirname + '/../squeak/Object.st');
 
