@@ -13,23 +13,23 @@ app := express value.
 
 "all environments"
 
-app napply: 'set' with: { 'views'. './views' }.
-app napply: 'set' with: { 'view engine'. 'ejs' }.
-app napply: 'use' with: { favicon value }.
-app napply: 'use' with: { logger value: 'dev' }.
-app napply: 'use' with: { bodyParser napply: 'json' }.
-app napply: 'use' with: { bodyParser napply: 'urlencoded' }.
-app napply: 'use' with: { cookieParser value }.
-app napply: 'use' with: { express napply: 'static' with: { './public' } }.
+app set: 'views' with: './views'.
+app set: 'view engine' with: 'ejs'.
+app use: favicon value.
+app use: (logger value: 'dev').
+app use: bodyParser json.
+app use: bodyParser urlencoded.
+app use: cookieParser value.
+app use: (express static: './public').
 
 "index"
 
 index := [ :request :response |
     | model |
-    console napply: 'log' with: { 'get index' }.
+    console log: 'get index'.
     model := NativeObject new.
     model nat: 'title' put:'Bootstrap Sample'.
-    response napply: 'render' with: { 'index'. model }
+    response render: 'index' with: model
 ] asFunction.
 
 app napply: 'get' with: { '/'. index }.
