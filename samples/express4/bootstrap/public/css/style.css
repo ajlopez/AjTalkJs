@@ -1,0 +1,17 @@
+
+.actions {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.form {
+    max-width: 400px;
+}
+
+th {
+    padding: 5px;
+}
+
+td {
+    padding: 5px;
+}
