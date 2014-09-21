@@ -1,6 +1,8 @@
 
 var ajtalk = require('../../..'),
     fs = require('fs');
+    
+ajtalk.Smalltalk.Error = Error;
 
 function executeFile(filename) {
     var text = fs.readFileSync(filename).toString();

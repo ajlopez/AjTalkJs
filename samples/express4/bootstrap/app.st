@@ -22,9 +22,21 @@ app napply: 'use' with: { bodyParser napply: 'urlencoded' }.
 app napply: 'use' with: { cookieParser value }.
 app napply: 'use' with: { express napply: 'static' with: { './public' } }.
 
+"index"
+
+index := [ :request :response |
+    | model |
+    console napply: 'log' with: { 'get index' }.
+    model := NativeObject new.
+    model nat: 'title' put:'Bootstrap Sample'.
+    response napply: 'render' with: { 'index'. model }
+] asFunction.
+
+app napply: 'get' with: { '/'. index }.
+ 
 "catch 404 and forward to error handler"
 app napply: 'use' with: { [ :req :res :next | |err| 
-    err := Error new.
+    err := Error nnew.
     err nat: 'status' put: 404.
     next value: err.
     ] asFunction }.
@@ -59,5 +71,13 @@ app napply: 'use' with: {
         res napply: 'status' with: { ((err nat: status) ifTrue: [err nat: status] ifFalse: [500] ) }.            
         res napply: 'render' with: { 'error', model }.
     ] asFunction
-}  
- 
+}.
+
+"start"
+
+app napply: 'set' with: { 'port'. 3000 }.
+
+app napply: 'listen' with: {
+    (app napply: 'get' with: { 'port' }).
+    [ console napply: 'log' with: { 'Express server listening on port'. app napply: 'get' with: { 'port' } } ] asFunction
+}.
