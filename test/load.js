@@ -17,6 +17,13 @@ exports['Load relative file with super'] = function (test) {
     test.ok(ajtalk.Smalltalk.HtmlHelloPage);
 }
 
+exports['Load simple proxy'] = function (test) {
+    var filename = path.join(__dirname, 'files', 'SimpleProxy.st');
+    ajtalk.load(filename);
+    
+    test.ok(ajtalk.Smalltalk.SimpleProxy);
+}
+
 exports['Load Squeak Object'] = function(test) {
 	ajtalk.load(__dirname + '/../squeak/Object.st');
 
