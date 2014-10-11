@@ -24,5 +24,5 @@ object: anObject
 
 !SimpleProxy methodsFor: 'acesss' stamp: 'ajlopez 10/11/2014 17:38'!
 doesNotUnderstand: aMessage
-    ^anObject perform: aMessage selector with: aMessage arguments.
+    ^object perform: aMessage selector with: aMessage arguments.
 ! !
