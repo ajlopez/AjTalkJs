@@ -37,8 +37,22 @@ exports['evaluate native property'] = function (test) {
     test.equal(result, 3);
 }
 
+exports['evaluate native property directly'] = function (test) {
+    var result = ajtalk.execute("'foo' length");
+    
+    test.ok(result);
+    test.equal(result, 3);
+}
+
 exports['evaluate native method'] = function (test) {
     var result = ajtalk.execute("'foo' napply: 'toUpperCase' with: { }");
+    
+    test.ok(result);
+    test.equal(result, 'FOO');
+}
+
+exports['evaluate native function directly'] = function (test) {
+    var result = ajtalk.execute("'foo' toUpperCase");
     
     test.ok(result);
     test.equal(result, 'FOO');

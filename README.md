@@ -30,5 +30,7 @@ Master has the current development code.
 
 - [Collections](http://www.inf.ufsc.br/poo/smalltalk/ibm/tutorial/chap7.html)
 - [Message Chains](http://blog.3plus4.org/2007/08/30/message-chains/)
+- [Proxy pattern implementation in smalltalk](http://stackoverflow.com/questions/16183309/proxy-pattern-implementation-in-smalltalk)
+
 
 
