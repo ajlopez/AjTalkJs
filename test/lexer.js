@@ -69,6 +69,30 @@ exports['get name with comments'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get code in comment'] = function (test) {
+    var mylexer = lexer.createLexer('"js:return 42;"');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, "return 42;");
+    test.equal(token.type, TokenType.Code);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['get code in comment with double quotes'] = function (test) {
+    var mylexer = lexer.createLexer('"js:return ""foo"";"');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, 'return "foo";');
+    test.equal(token.type, TokenType.Code);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get null when null string'] = function (test) {
     var mylexer = lexer.createLexer(null);
     
