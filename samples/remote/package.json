@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "simplemessages": "0.0.4"
+    "simplemessages": "0.0.6"
   }
 }
