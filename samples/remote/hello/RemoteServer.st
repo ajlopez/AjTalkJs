@@ -15,7 +15,7 @@ new: aBlock
     
     newserver := self basicNew.
     simplemessages := Smalltalk require: 'simplemessages'.
-    newserver server: (simplemessages napply: 'createServer' with: { aBlock asFunction }).
+    newserver server: (simplemessages createServer: aBlock asFunction).
     ^newserver.
 ! !
 
@@ -26,6 +26,6 @@ server: aServer
 
 !RemoteServer methodsFor: 'operation' stamp: 'ajlopez 10/29/2013 06:19'!
 listen: aPort
-    server napply: 'listen' with: { aPort }.
+    server listen: aPort.
 ! !
 
