@@ -1,1 +1,0 @@
-Smalltalk load: 'Console.st'.Console new write: 'Hello, world'.
