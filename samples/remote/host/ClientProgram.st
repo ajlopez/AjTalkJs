@@ -1,0 +1,1 @@
+Smalltalk load: 'RemoteHost.st'.client := RemoteHost new.client host: 'localhost' port: 3000 do: [     Global console log: 'Connected'.    client execute: 'Global console log: ''hello'''.    ].
