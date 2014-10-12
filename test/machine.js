@@ -1,5 +1,5 @@
 
-var machine = require('../lib/machine');
+var machine = require('../lib/machine')();
 var ByteCodes = machine.ByteCodes;
 
 exports['machine bytecodes'] = function (test) {
