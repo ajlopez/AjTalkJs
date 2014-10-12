@@ -322,3 +322,17 @@ exports['yourself'] = function (test) {
     test.equal(ajtalk.execute('1 >= 2; yourself'), 1);
     test.equal(ajtalk.execute('a := 1. a + 1; yourself'), 1);
 }
+
+exports['Smalltalk execute'] = function (test) {
+    test.equal(ajtalk.execute("Smalltalk execute: '1 + 2'"), 3);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 - 2'"), -1);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 * 2'"), 2);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 / 2'"), 0.5);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 = 2'"), false);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 ~= 2'"), true);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 < 2'"), true);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 <= 2'"), 1);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 > 2'"), false);
+    test.equal(ajtalk.execute("Smalltalk execute: '1 >= 2'"), false);
+    test.equal(ajtalk.execute("Smalltalk execute: 'a := 1. a + 1'"), 2);
+}
