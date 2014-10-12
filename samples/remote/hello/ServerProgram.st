@@ -5,9 +5,9 @@ Smalltalk load: 'Console.st'.
 console := Console new.
 
 server := RemoteServer new: [ :client | 
-    client napply: 'on' with: { 'error'. [ :err | console write: 'error' with: err ] toFunction }.
-    client napply: 'on' with: { 'close'. [ console write: 'client close' ] toFunction }.
-    client napply: 'write' with: { 'Hello, client. I''m the server' }.
+    client on: 'error' with: [ :err | console write: 'error' with: err ] asFunction.
+    client on: 'close' with: [ console write: 'client close' ] asFunction.
+    client write: 'Hello, client. I''m the server'.
     ].
 
 server listen: 3000.

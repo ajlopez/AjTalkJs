@@ -15,7 +15,7 @@ new: aBlock
     
     newserver := self basicNew.
     simplemessages := Smalltalk require: 'simplemessages'.
-    newserver server: (simplemessages napply: 'createServer' with: { aBlock toFunction }).
+    newserver server: (simplemessages napply: 'createServer' with: { aBlock asFunction }).
     ^newserver.
 ! !
 
