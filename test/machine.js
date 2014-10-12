@@ -1,5 +1,5 @@
 
-var machine = require('../lib/machine')();
+var machine = require('../lib/machine');
 var ByteCodes = machine.ByteCodes;
 
 exports['machine bytecodes'] = function (test) {
@@ -8,18 +8,18 @@ exports['machine bytecodes'] = function (test) {
 }
 
 exports['create block'] = function (test) {
-    var result = machine.createBlock();
+    var result = machine.createMachine().createBlock();
     test.ok(result);
 }
 
 exports['add value'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     var result = block.addValue(1);
     test.equal(result, 0);
 }
 
 exports['add two values'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     var result = block.addValue(1);
     test.equal(result, 0);
     var result = block.addValue(2);
@@ -27,7 +27,7 @@ exports['add two values'] = function (test) {
 }
 
 exports['add value twice'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     var result = block.addValue(1);
     test.equal(result, 0);
     var result = block.addValue(1);
@@ -35,7 +35,7 @@ exports['add value twice'] = function (test) {
 }
 
 exports['return value'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     var position = block.addValue(1);
     block.compileByteCode(ByteCodes.GetValue, position);
     block.compileByteCode(ByteCodes.Return);
@@ -45,7 +45,7 @@ exports['return value'] = function (test) {
 }
 
 exports['return first argument'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     block.compileByteCode(ByteCodes.GetArgument, 0);
     block.compileByteCode(ByteCodes.Return);
     var result = block.asFunction().apply(null, [10, 12]);
@@ -54,7 +54,7 @@ exports['return first argument'] = function (test) {
 }
 
 exports['return second argument'] = function (test) {
-    var block = machine.createBlock();
+    var block = machine.createMachine().createBlock();
     block.compileByteCode(ByteCodes.GetArgument, 1);
     block.compileByteCode(ByteCodes.Return);
     var result = block.asFunction().apply(null, [10, 12]);
