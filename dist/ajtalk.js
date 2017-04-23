@@ -2,7 +2,7 @@
 var ajtalk = (function() {
 
 var lexer = (function() {
-    var TokenType = { Name: 1, String: 2, Integer: 3, Real: 4, Keyword: 5, Symbol: 6, Punctuation: 7, Sign: 8, Character: 9, Parameter: 10 };
+    var TokenType = { Name: 1, String: 2, Integer: 3, Real: 4, Keyword: 5, Symbol: 6, Punctuation: 7, Sign: 8, Character: 9, Parameter: 10, Code: 11, Comment: 12 };
 
     var punctuations = "(),.|![]{};";
 
@@ -28,7 +28,11 @@ var lexer = (function() {
                     
                 if (ch === '"') {
                     position++;
-                    skipComment();
+                    var comment = nextComment();
+                    
+                    if (comment.value && comment.value.substring(0, 3) == 'js:')
+                        return { value: comment.value.substring(3), type: TokenType.Code };
+                        
                     continue;
                 }
                 
@@ -171,6 +175,28 @@ var lexer = (function() {
             position++;
             
             return { value: result, type: TokenType.String };
+        }
+        
+        function nextComment() {
+            var result = '';
+            
+            while (position < length) {
+                if (text[position] === '"') {
+                    if (text[position + 1] !== '"')
+                        break;
+                        
+                    position++;
+                }
+                        
+                result += text[position++];
+            }
+
+            if (text[position] != '"')
+                throw 'unclosed comment';
+                
+            position++;
+            
+            return { value: result, type: TokenType.Comment };
         }
     }
 
@@ -421,9 +447,16 @@ var parser = (function () {
 if (typeof module !== 'undefined' && module && module.exports)
     module.exports = parser;
 var chunkreader = (function() {	// Chunk Reader		function ChunkReader(text)	{		var position = 0;				this.nextChunk = function() {            if (text == null || text.length == 0)                return null;                            text = skipSpaces(text);            			if (text.length == 0)            {                text = null;				return '';            }							var result = '';                        if (text[0] == '!')            {                if (text.length > 1 && text[1] > ' ')                {                    result = '!';                    text = text.slice(1);                }                else                {                    text = text.slice(1);                    return '';                }            }            			var bangpos = text.indexOf("!");						if (bangpos < 0)			{				result += text;				text = null;				return result;			}						var bang2pos = text.indexOf("!!");						if (bang2pos == bangpos) {				while (bangpos >= 0 && bang2pos == bangpos)				{					result += text.slice(0, bangpos+1);					text = text.slice(bangpos + 2);					bangpos = text.indexOf("!");					bang2pos = text.indexOf("!!");				}								if (bangpos < 0)				{					result += text;					text = null;					return result;				}								result += text.slice(0, bangpos);				text = text.slice(bangpos + 1);								return result;			}						result += text.slice(0, bangpos);			text = text.slice(bangpos + 1);						return result;		}	}		ChunkReader.prototype.process = function(compiler) 	{		var chunk = this.nextChunk();		var ismethod = false;				while (chunk != null)		{			var isreader = false;						if (chunk != null && chunk.length > 0 && chunk[0] == '!')			{				chunk = chunk.slice(1);				isreader = true;			}						var result = compiler.compileBlock(chunk);			result = result.apply();						if (isreader)				result.scanFrom(this, true);							chunk = this.nextChunk();		}		}	    function skipSpaces(text)    {        var l = text.length;                for (var k=0; k < l; k++)            if (text[k] > ' ')                break;                        if (k==0)            return text;                    return text.slice(k);    }            function skipNewLines(text)    {        var l = text.length;                for (var k=0; k < l; k++)            if (text[k] >= ' ')                break;                        if (k==0)            return text;                    return text.slice(k);    }    return {        createReader: function (text) { return new ChunkReader(text); }     }})();if (typeof module !== 'undefined' && module && module.exports)    module.exports = chunkreader;
-var machine = (function() {
-    var Smalltalk;
-    
+var superobj = { };
+
+var topenv;
+
+if (typeof window === 'undefined')
+    topenv = global;
+else
+    topenv = window;
+
+var machine = (function(Smalltalk) {
 	var ByteCodes = {
 		GetValue: 0,
 		GetArgument: 1,
@@ -433,34 +466,51 @@ var machine = (function() {
 		GetSelf: 5,
 		GetNull: 6,
 		GetBlock: 7,
+        GetTrue: 8,
+        GetFalse: 9,
 		
 		SetLocal: 10,
 		SetInstanceVariable: 11,
 		SetGlobalVariable: 12,
+        GetYourself: 13,
+        GetSuper: 14,
 		
 		Add: 20,
 		Subtract: 21,
 		Multiply: 22,
 		Divide: 23,
 		Concatenate: 24,
+        Equal: 25,
+        NotEqual: 26,
+        StrictEqual: 27,
+        Less: 28,
+        Greater: 29,
+        LessEqual: 30,
+        GreaterEqual: 31,
 		
-		Primitive: 30,
-		NativePrimitive: 31,
-		LastTarget: 32,
+		Primitive: 35,
+		NativePrimitive: 36,
+		LastTarget: 37,
 		
 		SendMessage: 40,
 		NewList: 41,
 		Return: 50,
+        
+        IfTrue: 51,
+        IfFalse: 52,
+        IfTrueIfFalse: 53,
+        IfFalseIfTrue: 54,
 		
 		// Javascript bytecodes
 		
 		NativeAt: 100,
 		NativeAtPut: 101,
 		NativeApply: 102,
-		NativeNew: 103
+		NativeNew: 103,
+        NativeDo: 104
 	};
     	
-	function Block(arity, nlocals)
+	function Block(arity, nlocals, machine)
 	{
         arity = arity || 0;
         nlocals = nlocals || 0;
@@ -470,11 +520,12 @@ var machine = (function() {
         
 		this.bytecodes = [];
 		this.values = [];
+        this.machine = machine;
 	};
 	
 	Block.prototype.apply = function(self, args) 
 	{
-		return (new ExecutionBlock(this, self, args)).execute();
+		return (new ExecutionBlock(this, self, args, null, this.machine)).execute();
 	};
 	
 	Block.prototype.compileByteCode = function(bytecode, param)
@@ -484,10 +535,16 @@ var machine = (function() {
 			this.bytecodes.push(param);
 	};
 	
-	Block.prototype.toFunction = function()
+	Block.prototype.asFunction = function()
 	{
 		var block = this;
-		var result = function() { return block.apply(this, arguments); }
+        var result;
+        
+        if (this.fn)
+            result = function() { return block.fn.apply(this, arguments); }
+        else
+            result = function() { return block.apply(this, arguments); }
+        
 		result.method = this;
 		return result;
 	}
@@ -506,12 +563,17 @@ var machine = (function() {
 		return position;
 	}
 	
-	function ExecutionBlock(block, self, args)
+	function ExecutionBlock(block, self, args, locals, machine)
 	{
 		this.block = block;
 		this.self = self;
 		this.args = args;
-		this.locals = new Array(block.nlocals);
+        this.machine = machine;
+        
+        if (locals)
+            this.locals = locals;
+        else
+            this.locals = new Array(block.nlocals);
 	}
 	
 	ExecutionBlock.prototype.executeWithParameters = function(parameters)
@@ -519,6 +581,22 @@ var machine = (function() {
 		this.parameters = parameters;
 		return this.execute();
 	}
+    
+    ExecutionBlock.prototype.asFunction = function () {
+        var exeblock = this;
+        
+        return function () {
+            return exeblock.executeWithParameters(arguments);
+        }
+    }
+    
+    ExecutionBlock.prototype.value = function () {
+        return this.execute();
+    }
+    
+    ExecutionBlock.prototype.value_ = function (parameter) {
+        return this.executeWithParameters([parameter]);
+    }
 	
 	ExecutionBlock.prototype.execute = function()
 	{
@@ -538,7 +616,7 @@ var machine = (function() {
 					break;
 				case ByteCodes.GetBlock:
 					var nv = bc[ip++];
-					stack.push(new ExecutionBlock(this.block.values[nv], this.self, null));
+					stack.push(new ExecutionBlock(this.block.values[nv], this.self, this.args, this.locals, this.machine));
 					break;
 				case ByteCodes.GetParameter:
 					var np = bc[ip++];
@@ -562,7 +640,13 @@ var machine = (function() {
 					break;
 				case ByteCodes.GetGlobalVariable:
 					nv = bc[ip++];
-					stack.push(Smalltalk[this.block.values[nv]]);
+                    var varname = this.block.values[nv];
+                    var result = this.machine.Smalltalk[varname];
+                    
+                    if (result === undefined)
+                        result = topenv[varname];
+                        
+					stack.push(result);
 					break;
 				case ByteCodes.SetInstanceVariable:
 					niv = bc[ip++];
@@ -570,41 +654,129 @@ var machine = (function() {
 					break;
 				case ByteCodes.SetGlobalVariable:
 					nv = bc[ip++];
-					Smalltalk[this.block.values[nv]] = stack.pop();
+					this.machine.Smalltalk[this.block.values[nv]] = stack.pop();
 					break;
 				case ByteCodes.GetSelf:
 					stack.push(this.self);
 					break;
+				case ByteCodes.GetSuper:
+					stack.push(superobj);
+					break;
 				case ByteCodes.GetNull:
 					stack.push(null);
+					break;
+				case ByteCodes.GetTrue:
+					stack.push(true);
+					break;
+				case ByteCodes.GetFalse:
+					stack.push(false);
 					break;
 				case ByteCodes.LastTarget:
 					stack.push(target);
 					break;
+				case ByteCodes.GetYourself:
+					break;
 				case ByteCodes.Concatenate:
 					var op2 = stack.pop();
-					var op1 = stack.pop();
-					stack.push(op1.toString() + op2.toString());
+					var target = stack.pop();
+					stack.push(target.toString() + op2.toString());
+					break;
+				case ByteCodes.Equal:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target == op2);
+					break;
+				case ByteCodes.StrictEqual:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target === op2);
+					break;
+				case ByteCodes.NotEqual:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target != op2);
+					break;
+				case ByteCodes.Less:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target < op2);
+					break;
+				case ByteCodes.Greater:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target > op2);
+					break;
+				case ByteCodes.LessEqual:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target <= op2);
+					break;
+				case ByteCodes.GreaterEqual:
+					var op2 = stack.pop();
+					var target = stack.pop();
+					stack.push(target >= op2);
+					break;
+				case ByteCodes.IfTrue:
+					var blk = stack.pop();
+					var target = stack.pop();
+                    
+                    if (target)
+                        stack.push(blk.execute());
+                    else
+                        stack.push(null);
+                        
+					break;
+				case ByteCodes.IfTrueIfFalse:
+					var blk2 = stack.pop();
+					var blk1 = stack.pop();
+					var target = stack.pop();
+                    
+                    if (target)
+                        stack.push(blk1.execute());
+                    else
+                        stack.push(blk2.execute());
+                        
+					break;
+				case ByteCodes.IfFalse:
+					var blk = stack.pop();
+					var target = stack.pop();
+                    
+                    if (!target)
+                        stack.push(blk.execute());
+                    else
+                        stack.push(null);
+                        
+					break;
+				case ByteCodes.IfFalseIfTrue:
+					var blk2 = stack.pop();
+					var blk1 = stack.pop();
+					var target = stack.pop();
+                    
+                    if (!target)
+                        stack.push(blk1.execute());
+                    else
+                        stack.push(blk2.execute());
+                        
 					break;
 				case ByteCodes.Add:
 					var op2 = stack.pop();
-					var op1 = stack.pop();
-					stack.push(op1 + op2);
+					var target = stack.pop();
+					stack.push(target + op2);
 					break;
 				case ByteCodes.Subtract:
 					var op2 = stack.pop();
-					var op1 = stack.pop();
-					stack.push(op1 - op2);
+					var target = stack.pop();
+					stack.push(target - op2);
 					break;
 				case ByteCodes.Multiply:
 					var op2 = stack.pop();
-					var op1 = stack.pop();
-					stack.push(op1 * op2);
+					var target = stack.pop();
+					stack.push(target * op2);
 					break;
 				case ByteCodes.Divide:
 					var op2 = stack.pop();
-					var op1 = stack.pop();
-					stack.push(op1 / op2);
+					var target = stack.pop();
+					stack.push(target / op2);
 					break;
 				case ByteCodes.Return:
 					return stack.pop();
@@ -618,6 +790,16 @@ var machine = (function() {
 					var natprim = this.block.values[nv];
 					stack.push(eval(natprim));
 					break;
+                case ByteCodes.NativeDo:
+                    var blk = stack.pop();
+                    var target = stack.pop();
+                    
+                    for (var n in target) {
+                        var item = target[n];
+                        blk.executeWithParameters([item]);
+                    }
+                    
+                    break;
 				case ByteCodes.SendMessage:
 					var arity = bc[ip++];
 					var selector = stack.pop();
@@ -627,26 +809,79 @@ var machine = (function() {
 						args.unshift(stack.pop());
 						
 					var target = stack.pop();
-					
+
 					if (!target)
-						target = Smalltalk.Nil;
+						target = this.machine.Smalltalk.Nil;
+
+                    var fn;
+
+                    if (target === superobj) {
+                        fn = this.block.class.super.func.prototype[selector];
+                        target = this.self;
+                    }
+                    else {
+                        fn = target[selector];
+                        
+                        if (!fn && !target.klass) {
+                            var p = selector.indexOf("_");
+                            
+                            if (p > 0)
+                                fn = target[selector.substring(0, p)];
+                            else
+                                fn = target[selector];
+                        }
+                    }
                     
-					stack.push(target[selector].apply(target, args));
+                    if (!fn)
+                        if (target.doesNotUnderstand_)
+                            stack.push(target.doesNotUnderstand_({ selector: selector, arguments: args }));
+                        else if (selector == 'perform_with_' || selector == 'perform_with_delayed_') {
+                            fn = target[args[0]];
+                            if (!fn)
+                                throw "unknown selector '" + args[0] + "'";
+                                
+                            if (args[2]) {
+                                stack.push(null);
+                                setTimeout(function () { fn.apply(target, args[1]); });
+                            }
+                            else
+                                stack.push(fn.apply(target, args[1]));
+                        }
+                        else
+                            throw "unknown selector '" + selector + "'";
+                    else if (fn.apply)
+                        stack.push(fn.apply(target, args));
+                    else
+                        stack.push(fn);
 					
 					break;
 				case ByteCodes.NativeNew:
 					var args = stack.pop();
 					var target = stack.pop();
-					
-					stack.push(target.prototype.constructor.apply(target, args));
+                    
+                    var newobj = Object.create(target.prototype);
+                    
+                    if (target == Error) {
+                        target.prototype.constructor.apply(newobj, args);
+                        stack.push(newobj);
+                    }
+                    else {
+                        var result = target.prototype.constructor.apply(newobj, args);
+                        stack.push(result);
+                    }
 					
 					break;
 				case ByteCodes.NativeApply:
 					var args = stack.pop();
 					var selector = stack.pop();						
 					var target = stack.pop();
-					
-					stack.push(target[selector].apply(target, args));
+                    
+                    var fn = target[selector];
+                    
+                    if (!fn)
+                        throw "unknown native selector '" + selector + "'";
+                    
+					stack.push(fn.apply(target, args));
 					
 					break;
 				case ByteCodes.NativeAt:
@@ -689,14 +924,16 @@ var machine = (function() {
             return this.self;
 	}
     
-    function createBlock(arity, nlocals) {
-        return new Block(arity, nlocals);
+    function Machine(Smalltalk) {
+        this.Smalltalk = Smalltalk;
+        this.createBlock = function (arity, nlocals) {
+            return new Block(arity, nlocals, this);
+        }
     }
     
     return {
         ByteCodes: ByteCodes,
-        createBlock: createBlock,
-        defineSmalltalk: function (st) { Smalltalk = st; }
+        createMachine: function (Smalltalk) { return new Machine(Smalltalk); }
     }
 })();
 
@@ -707,7 +944,7 @@ if (typeof require != 'undefined') {
     var machine = require('./machine');
     var lexer = require('./lexer');
 }
-	
+
 var ByteCodes = machine.ByteCodes;
 var TokenType = lexer.TokenType;
 
@@ -721,13 +958,14 @@ var bccompiler = (function() {
         return token.type === TokenType.Integer || token.type === TokenType.Real;
     }
        
-	function Compiler()
+	function Compiler(machine)
 	{
+        this.machine = machine;
 	}
 	
 	Compiler.prototype.compileBlock = function(text) 
 	{
-		var block = machine.createBlock(0, 0);
+		var block = this.machine.createBlock(0, 0);
 		var mylexer = lexer.createLexer(text);
 		
 		if (this.log)
@@ -749,7 +987,7 @@ var bccompiler = (function() {
 		mylexer.pushToken(token);
 		var signature = this.compileMethodSignature(mylexer);		
 		
-		var method = machine.createBlock(signature.argnames.length, 0);
+		var method = this.machine.createBlock(signature.argnames.length, 0);
 		method.klass = klass;
 		method.argnames = signature.argnames;
 		method.localnames = signature.localnames;
@@ -890,6 +1128,18 @@ var bccompiler = (function() {
 		
 		while (token != null) 
 		{
+            if (token.type == TokenType.Code && !isblock) {
+                var args = [];
+                
+                if (block.argnames)
+                    args = block.argnames.slice();
+                    
+                args.push(token.value);
+                
+                block.fn = Function.constructor.apply(Function, args);
+                return nexprs;
+            }
+            
 			if (token.type == TokenType.Punctuation && token.value == '.')
 			{
 				token = lexer.nextToken();
@@ -953,6 +1203,9 @@ var bccompiler = (function() {
 			
 		switch (selector)
 		{
+			case 'ndo:':
+				block.compileByteCode(ByteCodes.NativeDo);
+				return;
 			case 'nat:':
 				block.compileByteCode(ByteCodes.NativeAt);
 				return;
@@ -968,6 +1221,18 @@ var bccompiler = (function() {
 				return;
 			case 'nnew:':
 				block.compileByteCode(ByteCodes.NativeNew);
+				return;
+			case 'ifTrue:':
+				block.compileByteCode(ByteCodes.IfTrue);
+				return;
+			case 'ifTrue:ifFalse:':
+				block.compileByteCode(ByteCodes.IfTrueIfFalse);
+				return;
+			case 'ifFalse:':
+				block.compileByteCode(ByteCodes.IfFalse);
+				return;
+			case 'ifFalse:ifTrue:':
+				block.compileByteCode(ByteCodes.IfFalseIfTrue);
 				return;
 		}
 
@@ -1005,6 +1270,27 @@ var bccompiler = (function() {
 				case ',':
 					block.compileByteCode(ByteCodes.Concatenate);
 					break;
+				case '=':
+					block.compileByteCode(ByteCodes.Equal);
+					break;
+				case '==':
+					block.compileByteCode(ByteCodes.StrictEqual);
+					break;
+				case '~=':
+					block.compileByteCode(ByteCodes.NotEqual);
+					break;
+				case '<':
+					block.compileByteCode(ByteCodes.Less);
+					break;
+				case '>':
+					block.compileByteCode(ByteCodes.Greater);
+					break;
+				case '<=':
+					block.compileByteCode(ByteCodes.LessEqual);
+					break;
+				case '>=':
+					block.compileByteCode(ByteCodes.GreaterEqual);
+					break;
 				default:
 					if (isNumber(token))
 					{
@@ -1037,6 +1323,9 @@ var bccompiler = (function() {
 		{
 			switch (token.value)
 			{
+				case 'yourself':
+					block.compileByteCode(ByteCodes.GetYourself);
+					break;
 				case 'nnew':
 					block.compileByteCode(ByteCodes.GetNull);
 					block.compileByteCode(ByteCodes.NativeNew);
@@ -1074,6 +1363,30 @@ var bccompiler = (function() {
             if (token.value == "self")
             {
                 block.compileByteCode(ByteCodes.GetSelf);
+                return;
+            }
+            
+            if (token.value == "super")
+            {
+                block.compileByteCode(ByteCodes.GetSuper);
+                return;
+            }
+            
+            if (token.value == "nil")
+            {
+                block.compileByteCode(ByteCodes.GetNull);
+                return;
+            }
+            
+            if (token.value == "false")
+            {
+                block.compileByteCode(ByteCodes.GetFalse);
+                return;
+            }
+            
+            if (token.value == "true")
+            {
+                block.compileByteCode(ByteCodes.GetTrue);
                 return;
             }
             
@@ -1172,8 +1485,10 @@ var bccompiler = (function() {
 		{
 			this.compileExpression(block, lexer);
 			token = lexer.nextToken();
-			if (token == null || token.type !== TokenType.Punctuation || token.value !== ')')
-				throw "Expected ')'";
+            if (token == null)
+				throw "Expected ')' instead of end of input";
+			if (token.type !== TokenType.Punctuation || token.value !== ')')
+				throw "Expected ')' instead of '" + token.value + "'";
 			return;
 		}
 		
@@ -1188,7 +1503,7 @@ var bccompiler = (function() {
         // TODO review arity, nlocals use
 		if (token.type === TokenType.Punctuation && token.value == '[')
 		{
-            var blk = machine.createBlock(0, 0);
+            var blk = this.machine.createBlock(0, 0);
             blk.argnames = block.argnames;
             if (block.localnames)
                 blk.localnames = block.localnames.slice(0);
@@ -1207,11 +1522,18 @@ var bccompiler = (function() {
 			this.compileConstantArray(block, lexer);
 			return;
 		}
-		
+        
 		// TODO review symbol treatment
 		if (token.type === TokenType.String || isNumber(token) || token.type === TokenType.Symbol || token.type === TokenType.Character)
 		{
-			var position = block.addValue(token.value);
+            var value = token.value;
+            
+            if (token.type === TokenType.Integer)
+                value = parseInt(value);
+            else if (token.type === TokenType.Real)
+                value = parseFloat(value);
+                
+			var position = block.addValue(value);
 			block.compileByteCode(ByteCodes.GetValue, position);
 			return;
 		}
@@ -1290,7 +1612,7 @@ var bccompiler = (function() {
 	}
     
     return {
-        createCompiler: function () { return new Compiler(); }
+        createCompiler: function (machine) { return new Compiler(machine); }
     };
 })();
 
@@ -1301,7 +1623,9 @@ if (typeof require != 'undefined') {
     var bccompiler = require('./bccompiler');
     var chunkreader = require('./chunkreader');
     var fs = require('fs');
+    var path = require('path');
     var machine = require('./machine');
+    var mod = require('module');
 }
 	
 var hasjquery = (typeof jQuery != 'undefined');
@@ -1381,7 +1705,7 @@ var ajtalk = (function() {
         point.setX_setY_(this, x);
         return point;
     }
-    
+
 	Number.prototype['do_'] = function(exeblock) {
 		if (exeblock.executeWithParameters)
 		{
@@ -1430,18 +1754,79 @@ var ajtalk = (function() {
     {
         return this.prototype.constructor.apply(this, args);
     }
+    
+    Function.prototype.value = function () {
+        return this();
+    }
+    
+    Function.prototype.value_ = function (arg) {
+        return this(arg);
+    }
+    
+    Function.prototype.value_with_ = function (arg1, arg2) {
+        return this(arg1, arg2);
+    }
 	
     // Smalltalk variable
 
 	var Smalltalk = {};
     
+    var mach = machine.createMachine(Smalltalk);
+    
+    Smalltalk.Machine = mach;
+    
     if (typeof window !== 'undefined')
         Smalltalk.Global = window;
     else
         Smalltalk.Global = global;
+        
+    Smalltalk.NativeObject = Object;
+    Object.new = function () { return { } };
+    /*
+    Object.prototype.toArray = function () {
+        var result = [];
+        
+        for (n in this)
+            result.push(this[n]);
+            
+        return result;
+    };
+    */
     
-    machine.defineSmalltalk(Smalltalk);
-    	
+    Smalltalk.NativeArray = Array;
+    Array.new = function () { return [ ] };
+    Array.new_ = function (size) { return Array(size); };
+    
+    Smalltalk.Smalltalk = Smalltalk;
+    
+    Smalltalk.Error = {
+        signal_: function (message) {
+            throw new Error(message);
+        }
+    }
+    
+    function strequire(name) {
+        var modfolders = mod._nodeModulePaths(process.cwd());
+        
+        for (var k = 0; k < modfolders.length; k++) {
+            filename = path.join(modfolders[k], 'ajtalkjs-' + name, 'Init.st');
+
+            if (!fs.existsSync(filename)) {
+                filename = path.join(modfolders[k], name);
+                if (fs.existsSync(filename))
+                    return require(filename);
+                    
+                continue;
+            }
+
+            return load(filename);
+        }
+        
+        return require(name);
+    };
+    
+    Smalltalk.require_ = strequire;
+        
     function createMetaclass(name, supermetaklass, clsvarnames)
     {
         var protometaklass = new Function();
@@ -1521,8 +1906,10 @@ var ajtalk = (function() {
 
                 if (typeof method == "function")
                     this.func.prototype[mthname] = method;
-                else
-                    this.func.prototype[mthname] = method.toFunction();
+                else {
+                    method.class = this;
+                    this.func.prototype[mthname] = method.asFunction();
+                }
             }
             
             protoklass.prototype.defineClassMethod = function(name, method)
@@ -1531,7 +1918,7 @@ var ajtalk = (function() {
                 if (typeof method == "function")
                     this.proto[mthname] = method;
                 else
-                    this.proto[mthname] = method.toFunction();
+                    this.proto[mthname] = method.asFunction();
             }
 
             protoklass.prototype.copyClassMethod = function(fromname, toname)
@@ -1594,7 +1981,7 @@ var ajtalk = (function() {
 
 	Smalltalk.ProtoObject.defineClassMethod('compileMethod:', function(text)
 		{
-			var compiler = bccompiler.createCompiler();
+			var compiler = bccompiler.createCompiler(mach);
 			var method = compiler.compileMethod(text, this);
 			this.defineMethod(method.name, method);
 			return method;
@@ -1607,7 +1994,7 @@ var ajtalk = (function() {
 	
 	Smalltalk.ProtoObject.defineClassMethod('compileClassMethod:', function(text)
 		{
-			var compiler = bccompiler.createCompiler();
+			var compiler = bccompiler.createCompiler(mach);
 			var method = compiler.compileMethod(text, this);
 			this.defineClassMethod(method.name, method);
 			return method;
@@ -1650,7 +2037,7 @@ var ajtalk = (function() {
 
             result.scanFrom = function(reader)
             {
-                var compiler = bccompiler.createCompiler();
+                var compiler = bccompiler.createCompiler(mach);
                 for (var chunk = reader.nextChunk(); chunk != null && chunk != ''; chunk = reader.nextChunk())
                 {
                     var method = compiler.compileMethod(chunk, self);
@@ -1691,26 +2078,45 @@ var ajtalk = (function() {
 		return result;
 	}
 	
-	Smalltalk.Object.compileClassMethod_("new ^self basicNew.");
+	Smalltalk.Object.compileClassMethod_("new ^self basicNew initialize.");
+	Smalltalk.Object.compileMethod_("initialize ^self.");
     
     function execute(text) {
-        var compiler = bccompiler.createCompiler();
+        var compiler = bccompiler.createCompiler(mach);
         var block = compiler.compileBlock(text);
         var result = block.apply();
         return result;
     }
+    
+    Smalltalk.execute_ = execute;
 	
     var exports = { };
 	exports.Smalltalk = Smalltalk;
     exports.execute = execute;
-	
-	if (fs)
-		exports.load = function(filename)
-		{
-			var content = fs.readFileSync(filename).toString();
-			chreader = chunkreader.createReader(content);
-			chreader.process(bccompiler.createCompiler());
-		}
+    
+    var loadpath = null;
+    
+    function load(filename) {
+        if (loadpath && filename[0] != path.sep && filename.indexOf(':') < 0)
+            filename = path.join(loadpath, filename);
+            
+        var content = fs.readFileSync(filename).toString();
+        chreader = chunkreader.createReader(content);
+        var originalloadpath = loadpath;
+        
+        try {
+            loadpath = path.dirname(path.resolve(filename));
+            chreader.process(bccompiler.createCompiler(mach));
+        }
+        finally {
+            loadpath = originalloadpath;
+        }
+    }
+    
+	if (fs) {
+		exports.load = load;
+        Smalltalk.load_ = load;
+    }
 		
 	if (typeof jQuery != 'undefined')
 	{
@@ -1720,7 +2126,7 @@ var ajtalk = (function() {
 			{
 				jQuery.get(filenames[0], null, function(data) {
 					var chreader = chunkreader.createReader(data);
-					chreader.process(bccompiler.createCompiler());
+					chreader.process(bccompiler.createCompiler(mach));
 					filenames.shift();
 					
 					if (filenames.length > 0)
