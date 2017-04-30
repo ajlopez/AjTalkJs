@@ -44,6 +44,13 @@ exports['evaluate new String'] = function (test) {
     test.equal(result, "foo");
 }
 
+exports['evaluate NativeString'] = function (test) {
+    var result = ajtalk.execute("NativeString");
+    
+    test.ok(result);
+    test.strictEqual(result, String);
+}
+
 exports['evaluate Number'] = function (test) {
     var result = ajtalk.execute("Number");
     
@@ -65,3 +72,16 @@ exports['evaluate Function'] = function (test) {
     test.strictEqual(result, Function);
 }
 
+exports['evaluate NativeFunction'] = function (test) {
+    var result = ajtalk.execute("NativeFunction");
+    
+    test.ok(result);
+    test.strictEqual(result, Function);
+}
+
+exports['create and evaluate Function'] = function (test) {
+    var result = ajtalk.execute("Function new: { 'a' 'b' 'return a+b;' }");
+    
+    test.ok(result);
+    test.equal(result(1, 2), 3);
+}
