@@ -43,3 +43,18 @@ exports['evaluate Number'] = function (test) {
     test.ok(result);
     test.strictEqual(result, Number);
 }
+
+exports['evaluate NativeArray'] = function (test) {
+    var result = ajtalk.execute("NativeArray");
+    
+    test.ok(result);
+    test.strictEqual(result, Array);
+}
+
+exports['evaluate Function'] = function (test) {
+    var result = ajtalk.execute("Function");
+    
+    test.ok(result);
+    test.strictEqual(result, Function);
+}
+
