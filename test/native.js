@@ -37,6 +37,13 @@ exports['evaluate String'] = function (test) {
     test.strictEqual(result, String);
 }
 
+exports['evaluate new String'] = function (test) {
+    var result = ajtalk.execute("String new: 'foo'");
+    
+    test.ok(result);
+    test.equal(result, "foo");
+}
+
 exports['evaluate Number'] = function (test) {
     var result = ajtalk.execute("Number");
     
