@@ -6,5 +6,7 @@ exports['Smalltalk Object'] = function(test) {
 	test.ok(Smalltalk);
 	test.ok(Smalltalk.ProtoObject);
 	test.ok(Smalltalk.Object);
+	test.ok(Smalltalk.NativeObject);
+	test.ok(Smalltalk.NativeArray);
 };
 

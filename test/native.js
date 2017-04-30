@@ -29,3 +29,17 @@ exports['evaluate Date'] = function (test) {
     test.ok(result);
     test.strictEqual(result, Date);
 }
+
+exports['evaluate String'] = function (test) {
+    var result = ajtalk.execute("String");
+    
+    test.ok(result);
+    test.strictEqual(result, String);
+}
+
+exports['evaluate Number'] = function (test) {
+    var result = ajtalk.execute("Number");
+    
+    test.ok(result);
+    test.strictEqual(result, Number);
+}
