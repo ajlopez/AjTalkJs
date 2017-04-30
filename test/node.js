@@ -1,7 +1,6 @@
 
 var ajtalk = require('../lib/ajtalk');
 var Smalltalk = ajtalk.Smalltalk;
-require('../lib/ajtalk-node.js');
 
 exports['Require Javascript File'] = function(test) {
     test.ok(Smalltalk.Node);
