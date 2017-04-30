@@ -85,3 +85,19 @@ exports['create and evaluate Function'] = function (test) {
     test.ok(result);
     test.equal(result(1, 2), 3);
 }
+
+exports['evaluate NativeObject'] = function (test) {
+    var result = ajtalk.execute("NativeObject");
+    
+    test.ok(result);
+    test.strictEqual(result, Object);
+}
+
+exports['create NativeObject'] = function (test) {
+    var result = ajtalk.execute("NativeObject new");
+    
+    test.ok(result);
+	test.equal(typeof result, 'object');
+}
+
+
