@@ -16,6 +16,13 @@ exports['evaluate string to upper case'] = function (test) {
     test.equal(result, 'FOO');
 }
 
+exports['evaluate native string method with many arguments'] = function (test) {
+    var result = ajtalk.execute("'foobar' substring: 1 with: 4");
+    
+    test.ok(result);
+    test.equal(result, 'foobar'.substring(1, 4));
+}
+
 exports['evaluate Math'] = function (test) {
     var result = ajtalk.execute("Math");
     
