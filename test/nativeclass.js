@@ -50,5 +50,7 @@ exports['compile instance method for String'] = function (test) {
 	test.equal(typeof result, 'function');
 	test.ok(String.prototype.incr_);
 	test.equal("foo".incr_(1), 2);
+	
+	test.equal(ajtalk.execute("'foo' incr: 1"), 2);
 	delete String.prototype.incr_;
 }
