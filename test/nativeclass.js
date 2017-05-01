@@ -42,3 +42,13 @@ exports['evaluate NativeArray isNativeClass'] = function (test) {
     test.ok(result);
     test.strictEqual(result, true);
 }
+
+exports['compile instance method for String'] = function (test) {
+    var result = ajtalk.execute("String compileMethod: 'incr: x ^(x + 1).'");
+
+	test.ok(result);
+	test.equal(typeof result, 'function');
+	test.ok(String.prototype.incr_);
+	test.equal("foo".incr_(1), 2);
+	delete String.prototype.incr_;
+}
