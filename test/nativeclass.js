@@ -1,6 +1,5 @@
 
-var ajtalk = require('..'),
-    path = require('path');
+var ajtalk = require('..');
 
 exports['evaluate String isNativeClass'] = function (test) {
     var result = ajtalk.execute("String isNativeClass");
