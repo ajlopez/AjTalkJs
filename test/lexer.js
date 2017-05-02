@@ -344,6 +344,42 @@ exports['get plus sign'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get number and plus sign'] = function (test) {
+    var mylexer = lexer.createLexer('1+');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '1');
+    test.equal(token.type, TokenType.Integer);
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '+');
+    test.equal(token.type, TokenType.Sign);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
+exports['get name and plus sign'] = function (test) {
+    var mylexer = lexer.createLexer('a+');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, 'a');
+    test.equal(token.type, TokenType.Name);
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '+');
+    test.equal(token.type, TokenType.Sign);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get return sign'] = function (test) {
     var mylexer = lexer.createLexer('^');
     
