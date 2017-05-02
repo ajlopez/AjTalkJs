@@ -9,5 +9,7 @@ exports['Smalltalk Object'] = function(test) {
 	test.ok(Smalltalk.NativeObject);
 	test.ok(Smalltalk.NativeArray);
 	test.ok(Smalltalk.NativeString);
+	test.ok(Smalltalk.NativeFunction);
+	test.ok(Smalltalk.NativeDate);
 };
 
