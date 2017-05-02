@@ -368,6 +368,18 @@ exports['get assignment sign'] = function (test) {
     test.equal(mylexer.nextToken(), null);
 }
 
+exports['get right arrow'] = function (test) {
+    var mylexer = lexer.createLexer('->');
+    
+    var token = mylexer.nextToken();
+    
+    test.ok(token);
+    test.equal(token.value, '->');
+    test.equal(token.type, TokenType.Sign);
+    
+    test.equal(mylexer.nextToken(), null);
+}
+
 exports['get less'] = function (test) {
     var mylexer = lexer.createLexer('<');
     
