@@ -114,6 +114,17 @@ exports['create native array using native new with arguments'] = function (test)
     test.equal(result[2], 3);
 }
 
+exports['create native array using braces'] = function (test) {
+    var result = ajtalk.execute("{ 1. 2. 3 }");
+    
+    test.ok(result);
+    test.ok(Array.isArray(result));
+    test.equal(result.length, 3);
+    test.equal(result[0], 1);
+    test.equal(result[1], 2);
+    test.equal(result[2], 3);
+}
+
 exports['block as native function'] = function (test) {
     var result = ajtalk.execute("[:a | a + 1 ] asFunction");
     
