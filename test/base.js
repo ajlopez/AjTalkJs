@@ -11,5 +11,7 @@ exports['Smalltalk Object'] = function(test) {
 	test.ok(Smalltalk.NativeString);
 	test.ok(Smalltalk.NativeFunction);
 	test.ok(Smalltalk.NativeDate);
+	test.ok(Smalltalk.Global);
+	test.ok(Smalltalk.JavaScript);
 };
 
