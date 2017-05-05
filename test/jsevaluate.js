@@ -7,3 +7,10 @@ exports['evaluate number'] = function (test) {
     test.ok(result);
     test.equal(result, 1);
 }
+
+exports['evaluate require'] = function (test) {
+    var result = ajtalk.execute("JavaScript evaluate: 'require(\"./ajtalk\")'");
+    
+    test.ok(result);
+    test.equal(result, ajtalk);
+}
