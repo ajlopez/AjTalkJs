@@ -14,3 +14,10 @@ exports['evaluate require'] = function (test) {
     test.ok(result);
     test.equal(result, ajtalk);
 }
+
+exports['execute commands'] = function (test) {
+    var result = ajtalk.execute("JavaScript execute: 'var a = 1; var b = 2; return a + b;'");
+    
+    test.ok(result);
+    test.equal(result, 3);
+}
