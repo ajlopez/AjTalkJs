@@ -30,7 +30,7 @@ var lexer = (function() {
                     position++;
                     var comment = nextComment();
                     
-                    if (comment.value && comment.value.substring(0, 3) == 'js:')
+                    if (comment.value && comment.value.substring(0, 3) === 'js:')
                         return { value: comment.value.substring(3), type: TokenType.Code };
                         
                     continue;
@@ -64,13 +64,13 @@ var lexer = (function() {
             if (ch === "'")
                 return nextString();
                 
-            if (ch == "$")
+            if (ch === "$")
                 return nextCharacter();
                 
-            if (ch == "^")
+            if (ch === "^")
                 return { value: '^', type: TokenType.Sign };
                 
-            if (ch == ':' && isLetter(text[position]))
+            if (ch === ':' && isLetter(text[position]))
                 return nextParameter();
             
             if (isLetter(ch))
@@ -98,7 +98,7 @@ var lexer = (function() {
         function nextName(ch) {
             var result = ch;
             
-            while (position < length && !isWhiteSpace(text[position]) && !isPunctuation(text[position])) {
+		while (position < length && !isWhiteSpace(text[position]) && !isPunctuation(text[position]) && (text[position] === ':' || !isSign(text[position]))) {
                 var ch2 = text[position++];
                 result += ch2;
                 
@@ -191,7 +191,7 @@ var lexer = (function() {
                 result += text[position++];
             }
 
-            if (text[position] != '"')
+            if (text[position] !== '"')
                 throw 'unclosed comment';
                 
             position++;
@@ -414,7 +414,7 @@ var parser = (function () {
         }
         
         function parseUnaryMessages(expr) {
-            for (var token = nextToken(); token && token.type == TokenType.Name; token = nextToken())
+            for (var token = nextToken(); token && token.type === TokenType.Name; token = nextToken())
                 expr = new UnaryMessageExpression(expr, token.value);
                 
             pushToken(token);
@@ -507,7 +507,9 @@ var machine = (function(Smalltalk) {
 		NativeAtPut: 101,
 		NativeApply: 102,
 		NativeNew: 103,
-        NativeDo: 104
+        NativeDo: 104,
+		IsNative: 105,
+		IsNativeClass: 106,
 	};
     	
 	function Block(arity, nlocals, machine)
@@ -821,14 +823,17 @@ var machine = (function(Smalltalk) {
                     }
                     else {
                         fn = target[selector];
+						
+						if (!fn && selector === 'compileMethod_' && isNativeClass(target)) {
+							stack.push(machineResult.compileInstanceMethodForNativeClass(target, args[0]));
+							break;
+						}
                         
-                        if (!fn && !target.klass) {
+                        if (!fn && isNative(target)) {
                             var p = selector.indexOf("_");
                             
                             if (p > 0)
                                 fn = target[selector.substring(0, p)];
-                            else
-                                fn = target[selector];
                         }
                     }
                     
@@ -911,6 +916,21 @@ var machine = (function(Smalltalk) {
 					stack.push(result);
 					
 					break;
+
+				case ByteCodes.IsNative:
+					var value = stack.pop();
+					
+					stack.push(isNative(value));
+					
+					break;
+
+				case ByteCodes.IsNativeClass:
+					var value = stack.pop();
+					
+					stack.push(isNativeClass(value));
+					
+					break;
+
 				default:
 					throw "Invalid ByteCode " + bytecode
 					breakl
@@ -931,10 +951,26 @@ var machine = (function(Smalltalk) {
         }
     }
     
-    return {
+    var machineResult = {
         ByteCodes: ByteCodes,
         createMachine: function (Smalltalk) { return new Machine(Smalltalk); }
     }
+	
+	return machineResult;
+	
+	function isNative(obj) {
+		return obj == null || !obj.klass;
+	}
+	
+	function isNativeClass(obj) {
+		if (obj == null)
+			return false;
+		
+		if (!isNative(obj) || !obj.prototype)
+			return false;
+		
+		return obj === String || obj === Number || obj === Date || obj === Function || obj === Array;
+	}
 })();
 
 if (typeof module !== 'undefined' && module && module.exports)
@@ -1326,6 +1362,12 @@ var bccompiler = (function() {
 				case 'yourself':
 					block.compileByteCode(ByteCodes.GetYourself);
 					break;
+				case 'isNative':
+					block.compileByteCode(ByteCodes.IsNative);
+					return;
+				case 'isNativeClass':
+					block.compileByteCode(ByteCodes.IsNativeClass);
+					return;
 				case 'nnew':
 					block.compileByteCode(ByteCodes.GetNull);
 					block.compileByteCode(ByteCodes.NativeNew);
@@ -1619,16 +1661,17 @@ var bccompiler = (function() {
 if (typeof module !== 'undefined' && module && module.exports)
     module.exports = bccompiler;
 
-if (typeof require != 'undefined') {
+if (typeof require !== 'undefined') {
     var bccompiler = require('./bccompiler');
     var chunkreader = require('./chunkreader');
     var fs = require('fs');
     var path = require('path');
     var machine = require('./machine');
+	var javascript = require('./javascript');
     var mod = require('module');
 }
 	
-var hasjquery = (typeof jQuery != 'undefined');
+var hasjquery = (typeof jQuery !== 'undefined');
 
 var ajtalk = (function() {
 
@@ -1724,7 +1767,7 @@ var ajtalk = (function() {
     }
     
     Number.prototype.isInteger = function() {
-        return this % 1 == 0;
+        return this % 1 === 0;
     }
 
     Number.prototype.degreesToRadians = function() {
@@ -1796,6 +1839,24 @@ var ajtalk = (function() {
     Smalltalk.NativeArray = Array;
     Array.new = function () { return [ ] };
     Array.new_ = function (size) { return Array(size); };
+
+    Smalltalk.NativeString = String;
+    String.new = function () { return new String() };
+    String.new_ = function (text) { return new String(text); };
+
+    Smalltalk.NativeDate = Date;
+    Date.new = function () { return new Date() };
+    Date.new_ = function (arg) { return new Date(arg); };
+	// TODO other news, read https://www.w3schools.com/jsref/jsref_obj_date.asp
+
+	// Native Function with new constructor
+	// Usage: Function new: { 'a' 'b' 'return a+b;' }
+    Smalltalk.NativeFunction = Function;
+	// http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
+	// http://stackoverflow.com/questions/3362471/how-can-i-call-a-javascript-constructor-using-call-or-apply
+	function TempFunction() {};
+	TempFunction.prototype = Function;
+    Function.new_ = function (args) { return Function.apply(new TempFunction(), args); };
     
     Smalltalk.Smalltalk = Smalltalk;
     
@@ -1904,7 +1965,7 @@ var ajtalk = (function() {
             {
                 var mthname = name.replace(/:/g, '_');
 
-                if (typeof method == "function")
+                if (typeof method === "function")
                     this.func.prototype[mthname] = method;
                 else {
                     method.class = this;
@@ -1912,10 +1973,22 @@ var ajtalk = (function() {
                 }
             }
             
+            protoklass.prototype.defineObjectMethod = function(obj, name, method)
+            {
+                var mthname = name.replace(/:/g, '_');
+
+                if (typeof method === "function")
+                    obj[mthname] = method;
+                else {
+                    method.class = obj.klass;
+                    obj[mthname] = method.asFunction();
+                }
+            }
+            
             protoklass.prototype.defineClassMethod = function(name, method)
             {
                 var mthname = name.replace(/:/g, '_');
-                if (typeof method == "function")
+                if (typeof method === "function")
                     this.proto[mthname] = method;
                 else
                     this.proto[mthname] = method.asFunction();
@@ -1986,6 +2059,23 @@ var ajtalk = (function() {
 			this.defineMethod(method.name, method);
 			return method;
 		});
+		
+	Smalltalk.ProtoObject.defineMethod('compileMethod:', function(text)
+		{
+			var compiler = bccompiler.createCompiler(mach);
+			var method = compiler.compileMethod(text, this.klass);
+			this.klass.defineObjectMethod(this, method.name, method);
+			return method;
+		});
+		
+	machine.compileInstanceMethodForNativeClass = function(klass, text) {
+		var compiler = bccompiler.createCompiler(mach);
+		var method = compiler.compileMethod(text, this);
+		var fn = method.asFunction();
+        var mthname = method.name.replace(/:/g, '_');
+		klass.prototype[mthname] = fn;
+		return fn;
+	}
 	
 	Smalltalk.ProtoObject.defineClassMethod('name', function()
 		{
@@ -2004,7 +2094,7 @@ var ajtalk = (function() {
 		function (name, instvarnames, clsvarnames)
 		{
 			// TODO Quick hack to suppor .st load
-			if (name == 'ProtoObject' || name == 'Object')
+			if (name === 'ProtoObject' || name === 'Object')
 				return;
 
 			createClass(name, this, toNames(instvarnames), toNames(clsvarnames));
@@ -2038,7 +2128,7 @@ var ajtalk = (function() {
             result.scanFrom = function(reader)
             {
                 var compiler = bccompiler.createCompiler(mach);
-                for (var chunk = reader.nextChunk(); chunk != null && chunk != ''; chunk = reader.nextChunk())
+                for (var chunk = reader.nextChunk(); chunk && chunk != ''; chunk = reader.nextChunk())
                 {
                     var method = compiler.compileMethod(chunk, self);
                     self.defineMethod(method.name, method);                    
@@ -2072,7 +2162,7 @@ var ajtalk = (function() {
 			if (words[k])
 				result.push(words[k]);
 				
-		if (result.length == 0)
+		if (result.length === 0)
 			return null;
 
 		return result;
@@ -2080,6 +2170,12 @@ var ajtalk = (function() {
 	
 	Smalltalk.Object.compileClassMethod_("new ^self basicNew initialize.");
 	Smalltalk.Object.compileMethod_("initialize ^self.");
+
+	Smalltalk.Object.subclass_instanceVariableNames_classVariableNames_('JavaScript', '', '');
+
+	Smalltalk.JavaScript.defineClassMethod('evaluate:', javascript.evaluate);
+    
+	Smalltalk.JavaScript.defineClassMethod('execute:', javascript.execute);
     
     function execute(text) {
         var compiler = bccompiler.createCompiler(mach);
@@ -2139,13 +2235,30 @@ var ajtalk = (function() {
 			loadNextFile();
 		}
 	}
+	
+	// Is Node
+	if (typeof module !== 'undefined' && module && module.exports) {
+		Smalltalk.Object.subclass_instanceVariableNames_classVariableNames_('Node', '', '');
+
+		Smalltalk.Node.defineClassMethod('require:', function(filename)
+		{
+			return require(filename);
+		});
+
+		Smalltalk.Node.defineClassMethod('loadst:', function(filename)
+		{
+			var content = fs.readFileSync(filename).toString();
+			var chreader = chunkreader.createReader(content);
+			chreader.process(bccompiler.createCompiler(Smalltalk.Machine));
+		});
+	}
     
     return exports;
 })();
 
 if (typeof module !== 'undefined' && module && module.exports)
     module.exports = ajtalk;
-    return ajtalk;
+	    return ajtalk;
 
 })();
 
