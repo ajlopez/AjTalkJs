@@ -34,6 +34,8 @@ Master has the current development code.
 - [A Squeak Archaeologist's Tool Kit](https://wiki.squeak.org/squeak/1053)
 - [Squeak ImageFormat](http://wiki.squeak.org/squeak/6290)
 - [Squeak ckformat](http://wiki.squeak.org/squeak/6582)
+- [Squeak VMMaker](http://wiki.squeak.org/squeak/2105)
+
 
 
 
