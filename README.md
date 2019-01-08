@@ -35,8 +35,9 @@ Master has the current development code.
 - [Squeak ImageFormat](http://wiki.squeak.org/squeak/6290)
 - [Squeak ckformat](http://wiki.squeak.org/squeak/6582)
 - [Squeak VMMaker](http://wiki.squeak.org/squeak/2105)
-
-
+- [Slang, sub-set of Smalltalk language](http://wiki.squeak.org/squeak/slang)
+- [Understanding Slang for building a compiler to C++](http://forum.world.st/Understanding-Slang-for-building-a-compiler-to-C-td4882523.html)
+- [OpenSmalltalk VMs How to Build](https://github.com/OpenSmalltalk/opensmalltalk-vm/blob/Cog/build.win64x64/HowToBuild)
 
 
 
